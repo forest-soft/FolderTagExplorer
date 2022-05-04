@@ -6,9 +6,37 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+    AllowDrop="True"
+    DragOver="Page_DragOver"
+    Drop="Page_Drop">
 
-    <Grid>
-
-    </Grid>
+    <RelativePanel>
+        <TextBlock x:Name="TitleTextBlock" Text="Collection" Margin="24,0,0,24" Style="{StaticResource TitleTextBlockStyle}"/>
+        <GridView
+            x:Name="ImageGridView"
+            RelativePanel.AlignLeftWithPanel="True"
+            RelativePanel.AlignRightWithPanel="True"
+            RelativePanel.Below="TitleTextBlock"
+            ItemsSource="{x:Bind recordings}"
+            RelativePanel.AlignBottomWithPanel="True"
+            IsItemClickEnabled="True"
+            DataContextChanged="GridView_DataContextChanged"
+            ItemClick="ImageGridView_ItemClick">
+            <GridView.ItemTemplate>
+                <DataTemplate x:Name="IconTextTemplate" x:DataType="local:NamedColor">
+                    <StackPanel Width="300" Height="350" Padding="12" Orientation="Vertical">
+                        <Image Width="300" Height="300" Source="{x:Bind ImageSource}" Opacity="1" Stretch="Uniform" />
+                        <TextBlock x:Name="DisplayName" Margin="0,10,0,0" Text="{x:Bind DisplayName}"/>
+                    </StackPanel>
+                </DataTemplate>
+            </GridView.ItemTemplate>
+            <GridView.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <ItemsWrapGrid Orientation="Horizontal" HorizontalAlignment="Center"/>
+                </ItemsPanelTemplate>
+            </GridView.ItemsPanel>
+        </GridView>
+        <Button Content="Button" Margin="200,10,0,0" Click="Button_Click"/>
+    </RelativePanel>
 </Page>
