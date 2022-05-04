@@ -22,7 +22,7 @@
             RelativePanel.AlignBottomWithPanel="True"
             IsItemClickEnabled="True"
             DataContextChanged="GridView_DataContextChanged"
-            ItemClick="ImageGridView_ItemClick">
+            ItemClick="ImageGridView_ItemClick" ScrollViewer.VerticalScrollBarVisibility="Auto">
             <GridView.ItemTemplate>
                 <DataTemplate x:Name="IconTextTemplate" x:DataType="local:NamedColor">
                     <StackPanel Width="300" Height="350" Padding="12" Orientation="Vertical">

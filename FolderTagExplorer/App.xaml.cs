@@ -31,7 +31,7 @@ namespace FolderTagExplorer
 			this.InitializeComponent();
 			this.Suspending += OnSuspending;
 		}
-		
+
 		/// <summary>
 		/// アプリケーションがエンド ユーザーによって正常に起動されたときに呼び出されます。他のエントリ ポイントは、
 		/// アプリケーションが特定のファイルを開くために起動されたときなどに使用されます。
@@ -40,25 +40,25 @@ namespace FolderTagExplorer
 		protected override void OnLaunched(LaunchActivatedEventArgs e)
 		{
 			Frame rootFrame = Window.Current.Content as Frame;
-			
+
 			// ウィンドウに既にコンテンツが表示されている場合は、アプリケーションの初期化を繰り返さずに、
 			// ウィンドウがアクティブであることだけを確認してください
 			if (rootFrame == null)
 			{
 				// ナビゲーション コンテキストとして動作するフレームを作成し、最初のページに移動します
 				rootFrame = new Frame();
-				
+
 				rootFrame.NavigationFailed += OnNavigationFailed;
-				
+
 				if (e.PreviousExecutionState == ApplicationExecutionState.Terminated)
 				{
 					//TODO: 以前中断したアプリケーションから状態を読み込みます
 				}
-				
+
 				// フレームを現在のウィンドウに配置します
 				Window.Current.Content = rootFrame;
 			}
-			
+
 			if (e.PrelaunchActivated == false)
 			{
 				if (rootFrame.Content == null)
@@ -72,7 +72,7 @@ namespace FolderTagExplorer
 				Window.Current.Activate();
 			}
 		}
-		
+
 		/// <summary>
 		/// 特定のページへの移動が失敗したときに呼び出されます
 		/// </summary>
@@ -82,7 +82,7 @@ namespace FolderTagExplorer
 		{
 			throw new Exception("Failed to load Page " + e.SourcePageType.FullName);
 		}
-		
+
 		/// <summary>
 		/// アプリケーションの実行が中断されたときに呼び出されます。
 		/// アプリケーションが終了されるか、メモリの内容がそのままで再開されるかに

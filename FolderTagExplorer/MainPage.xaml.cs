@@ -35,32 +35,32 @@ namespace FolderTagExplorer
 	public sealed partial class MainPage : Page
 	{
 		private ObservableCollection<NamedColor> recordings = new ObservableCollection<NamedColor>();
-		
+
 		public MainPage()
 		{
 			this.InitializeComponent();
-			
+
 			this.init();
 		}
-		
+
 		private async void init()
 		{
 			// SQLiteのDBに初期データを流し込む。
 			DataAccess.InitializeDatabase();
-			
+
 			List<Dictionary<String, String>> list = DataAccess.SelectAllData();
 			foreach (var v in list)
 			{
 				await this.AddItem(v["path"], true);
 			}
 		}
-		
+
 		private void Page_DragOver(object sender, DragEventArgs e)
 		{
 			e.AcceptedOperation = DataPackageOperation.Link;
 			e.DragUIOverride.Caption = "インポート";
 		}
-		
+
 		private async void Page_Drop(object sender, DragEventArgs e)
 		{
 			if (e.DataView.Contains(StandardDataFormats.StorageItems))
@@ -88,19 +88,19 @@ namespace FolderTagExplorer
 				}
 			}
 		}
-		
+
 		private void GridView_DataContextChanged(FrameworkElement sender, DataContextChangedEventArgs e)
 		{
 			//null;
 			// 要素追加時に追加した要素の位置までスクロールさせたい。
 		}
-		
+
 		private void Button_Click(object sender, RoutedEventArgs e)
 		{
 			//this.addItem("c:\\ddd");
 			// DataAccess.AddData("button_click");
 		}
-		
+
 		private async Task AddItem(string path, bool is_init = false)
 		{
 			if (!is_init)
@@ -111,7 +111,7 @@ namespace FolderTagExplorer
 					return;
 				}
 			}
-			
+
 			StorageFile storageFile = null;
 			StorageFolder storageFolder = null;
 			Boolean IsFile = false;
@@ -134,10 +134,10 @@ namespace FolderTagExplorer
 					MessageDialog md = new MessageDialog("アクセスできませんでした。");
 					await md.ShowAsync();
 					return;
-					
+
 				}
 			}
-			
+
 			StorageFile imageFile = null;
 			if (storageFile == null && storageFolder != null)
 			{
@@ -155,7 +155,7 @@ namespace FolderTagExplorer
 				sortOrder.PropertyName = "System.FileName";
 				options.SortOrder.Add(sortOrder);
 				*/
-				
+
 				var result = storageFolder.CreateFileQueryWithOptions(options);
 				IReadOnlyList<StorageFile> fileList = await result.GetFilesAsync(0, 1);
 				if (fileList.Count != 0)
@@ -163,7 +163,7 @@ namespace FolderTagExplorer
 					storageFile = fileList[0];
 				}
 			}
-			
+
 			if (storageFile != null && storageFile.ContentType.StartsWith("image/"))
 			{
 				imageFile = storageFile;
@@ -186,7 +186,7 @@ namespace FolderTagExplorer
 					thumbnail = await storageFolder.GetThumbnailAsync(ThumbnailMode.SingleItem, 600);
 				}
 			}
-			
+
 			if (thumbnail == null || (imageFile != null && thumbnail.Type == ThumbnailType.Icon))
 			{
 				// サムネイルのキャッシュが作られてない場合はデフォルトの画像アイコンが返ってきてしまうので、
@@ -197,7 +197,7 @@ namespace FolderTagExplorer
 			{
 				bitmapImage.SetSource(thumbnail);
 			}
-			
+
 			if (!is_init)
 			{
 				this.recordings.Insert(0, new NamedColor(path, IsFile, name, bitmapImage));
@@ -208,7 +208,7 @@ namespace FolderTagExplorer
 				this.recordings.Add(new NamedColor(path, IsFile, name, bitmapImage));
 			}
 		}
-		
+
 		private async void ImageGridView_ItemClick(object sender, ItemClickEventArgs e)
 		{
 			NamedColor ClickedItem = (NamedColor)e.ClickedItem;
@@ -231,7 +231,7 @@ namespace FolderTagExplorer
 			}
 		}
 	}
-	
+
 	class NamedColor
 	{
 		public NamedColor(string Path, Boolean IsFile, string DisplayName, BitmapImage Image)
@@ -241,13 +241,13 @@ namespace FolderTagExplorer
 			this.DisplayName = DisplayName;
 			this.ImageSource = Image;
 		}
-		
+
 		public string Path { get; set; }
-		
+
 		public Boolean IsFile { get; set; }
-		
+
 		public string DisplayName { get; set; }
-		
+
 		public BitmapImage ImageSource { get; set; }
 	}
 }
