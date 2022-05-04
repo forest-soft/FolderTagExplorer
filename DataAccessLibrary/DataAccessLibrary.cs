@@ -114,8 +114,9 @@ namespace DataAccessLibrary
 			return entries;
 		}
 
-		public static void AddData(string inputText)
+		public static string AddData(string inputText)
 		{
+			string id = null;
 			using (SqliteConnection db = GetConnection())
 			{
 				db.Open();
@@ -129,9 +130,31 @@ namespace DataAccessLibrary
 
 				insertCommand.ExecuteReader();
 
+				SqliteCommand SelectCommand = new SqliteCommand();
+				SelectCommand.Connection = db;
+				SelectCommand.CommandText = "SELECT last_insert_rowid();";
+				id = SelectCommand.ExecuteScalar().ToString();
+
 				// db.Close();
 			}
 
+			return id;
+		}
+
+		public static void DeleteItemData(string id)
+		{
+			using (SqliteConnection db = GetConnection())
+			{
+				db.Open();
+
+				SqliteCommand sql_command = new SqliteCommand();
+				sql_command.Connection = db;
+				sql_command.CommandText = "DELETE FROM Item WHERE id = @id;";
+				sql_command.Parameters.AddWithValue("@id", id);
+				sql_command.ExecuteReader();
+
+				// db.Close();
+			}
 		}
 
 	}

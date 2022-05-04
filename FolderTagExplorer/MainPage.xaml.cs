@@ -41,6 +41,8 @@ namespace FolderTagExplorer
 			this.InitializeComponent();
 
 			this.init();
+
+			// this.ImageGridView.Items.
 		}
 
 		private async void init()
@@ -51,7 +53,7 @@ namespace FolderTagExplorer
 			List<Dictionary<String, String>> list = DataAccess.SelectAllData();
 			foreach (var v in list)
 			{
-				await this.AddItem(v["path"], true);
+				await this.AddItem(v["path"], true, v["id"]);
 			}
 		}
 
@@ -101,7 +103,7 @@ namespace FolderTagExplorer
 			// DataAccess.AddData("button_click");
 		}
 
-		private async Task AddItem(string path, bool is_init = false)
+		private async Task AddItem(string path, bool is_init = false, string id = null)
 		{
 			if (!is_init)
 			{
@@ -115,11 +117,13 @@ namespace FolderTagExplorer
 			StorageFile storageFile = null;
 			StorageFolder storageFolder = null;
 			Boolean IsFile = false;
+			Boolean is_exist = false;
 			string name = null;
 			try
 			{
 				storageFile = await StorageFile.GetFileFromPathAsync(path);
 				IsFile = true;
+				is_exist = true;
 				name = storageFile.Name;
 			}
 			catch (Exception e)
@@ -127,14 +131,19 @@ namespace FolderTagExplorer
 				try
 				{
 					storageFolder = await StorageFolder.GetFolderFromPathAsync(path);
+					is_exist = true;
 					name = storageFolder.Name;
 				}
 				catch (Exception e2)
 				{
-					MessageDialog md = new MessageDialog("アクセスできませんでした。");
-					await md.ShowAsync();
-					return;
+					if (!is_init)
+					{
+						MessageDialog md = new MessageDialog("ファイル、フォルダが見つかりませんでした。");
+						await md.ShowAsync();
+						return;
+					}
 
+					name = Path.GetFileName(path);
 				}
 			}
 
@@ -189,9 +198,21 @@ namespace FolderTagExplorer
 
 			if (thumbnail == null || (imageFile != null && thumbnail.Type == ThumbnailType.Icon))
 			{
-				// サムネイルのキャッシュが作られてない場合はデフォルトの画像アイコンが返ってきてしまうので、
-				// その場合はオリジナル画像をそのまま表示する。
-				bitmapImage.SetSource(await imageFile.OpenReadAsync());
+				if (imageFile == null)
+				{
+					/*
+					var fontIcon = new FontIcon();
+					fontIcon.FontFamily = new FontFamily("Segoe MDL2 Assets");
+					fontIcon.Glyph = "\xE790";
+					bitmapImage.SetSource(fontIcon);
+					*/
+				}
+				else
+				{
+					// サムネイルのキャッシュが作られてない場合はデフォルトの画像アイコンが返ってきてしまうので、
+					// その場合はオリジナル画像をそのまま表示する。
+					bitmapImage.SetSource(await imageFile.OpenReadAsync());
+				}
 			}
 			else
 			{
@@ -200,18 +221,27 @@ namespace FolderTagExplorer
 
 			if (!is_init)
 			{
-				this.recordings.Insert(0, new NamedColor(path, IsFile, name, bitmapImage));
-				DataAccess.AddData(path);
+				id = DataAccess.AddData(path);
+				this.recordings.Insert(0, new NamedColor(id, path, IsFile, name, is_exist, bitmapImage));
+				
 			}
 			else
 			{
-				this.recordings.Add(new NamedColor(path, IsFile, name, bitmapImage));
+				this.recordings.Add(new NamedColor(id, path, IsFile, name, is_exist, bitmapImage));
 			}
 		}
 
 		private async void ImageGridView_ItemClick(object sender, ItemClickEventArgs e)
 		{
 			NamedColor ClickedItem = (NamedColor)e.ClickedItem;
+
+			if (!ClickedItem.IsExist)
+			{
+				MessageDialog md = new MessageDialog("ファイル、フォルダが見つかりませんでした。");
+				await md.ShowAsync();
+				return;
+			}
+
 			if (ClickedItem.IsFile)
 			{
 				StorageFile storageFile = await StorageFile.GetFileFromPathAsync(ClickedItem.Path);
@@ -230,17 +260,61 @@ namespace FolderTagExplorer
 				await Launcher.LaunchFolderAsync(storageFolder);
 			}
 		}
+
+		/// <summary>
+		/// ImageGridViewのItemのコンテキストメニュークリック時のイベント
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		private async void ImageGridViewItem_MenuFlyoutItem_Click(object sender, RoutedEventArgs e)
+		{
+			string type = (String)((FrameworkElement)sender).Tag;
+			NamedColor select_item = (NamedColor)((FrameworkElement)sender).DataContext;
+
+			if (type == "delete")
+			{
+				ContentDialog noWifiDialog = new ContentDialog
+				{
+					// Title = "",
+					Content = "リストから削除しますか？",
+					PrimaryButtonText = "はい",
+					CloseButtonText = "いいえ"
+				};
+
+				ContentDialogResult result = await noWifiDialog.ShowAsync();
+				if (result == ContentDialogResult.Primary)
+				{
+					DataAccess.DeleteItemData(select_item.Id);
+					this.recordings.Remove(select_item);
+				}
+			}
+		}
 	}
 
 	class NamedColor
 	{
-		public NamedColor(string Path, Boolean IsFile, string DisplayName, BitmapImage Image)
+		public NamedColor(string id, string path, Boolean is_file, string display_name, Boolean is_exist, BitmapImage image)
 		{
-			this.Path = Path;
-			this.IsFile = IsFile;
-			this.DisplayName = DisplayName;
-			this.ImageSource = Image;
+			this.Id = id;
+			this.Path = path;
+			this.IsFile = is_file;
+			this.DisplayName = display_name;
+			this.IsExist = is_exist;
+			
+			if (is_exist)
+			{
+				this.ImageSource = image;
+				this.ImageVisibility = Visibility.Visible;
+				this.NotExistIconVisibility = Visibility.Collapsed;
+			}
+			else
+			{
+				this.ImageVisibility = Visibility.Collapsed;
+				this.NotExistIconVisibility = Visibility.Visible;
+			}
 		}
+
+		public string Id { get; set; }
 
 		public string Path { get; set; }
 
@@ -248,6 +322,11 @@ namespace FolderTagExplorer
 
 		public string DisplayName { get; set; }
 
+		public Boolean IsExist { get; set; }
+
 		public BitmapImage ImageSource { get; set; }
+
+		public Visibility NotExistIconVisibility { get; set; }
+		public Visibility ImageVisibility { get; set; }
 	}
 }
