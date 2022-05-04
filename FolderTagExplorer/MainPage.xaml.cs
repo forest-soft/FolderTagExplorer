@@ -51,7 +51,7 @@ namespace FolderTagExplorer
 			List<Dictionary<String, String>> list = DataAccess.SelectAllData();
 			foreach (var v in list)
 			{
-				await this.addItem(v["path"], true);
+				await this.AddItem(v["path"], true);
 			}
 		}
 		
@@ -72,11 +72,11 @@ namespace FolderTagExplorer
 					{
 						if (item is StorageFile)
 						{
-							await this.addItem(((StorageFile)item).Path);
+							await this.AddItem(((StorageFile)item).Path);
 						}
 						else if (item is StorageFolder)
 						{
-							await this.addItem(((StorageFolder)item).Path);
+							await this.AddItem(((StorageFolder)item).Path);
 						}
 						else
 						{
@@ -101,15 +101,24 @@ namespace FolderTagExplorer
 			// DataAccess.AddData("button_click");
 		}
 		
-		private async Task addItem(string Path, bool is_init = false)
+		private async Task AddItem(string path, bool is_init = false)
 		{
+			if (!is_init)
+			{
+				// 既に登録済みのPathであれば追加しない。
+				if (DataAccess.GetItemByPath(path) != null)
+				{
+					return;
+				}
+			}
+			
 			StorageFile storageFile = null;
 			StorageFolder storageFolder = null;
 			Boolean IsFile = false;
 			string name = null;
 			try
 			{
-				storageFile = await StorageFile.GetFileFromPathAsync(Path);
+				storageFile = await StorageFile.GetFileFromPathAsync(path);
 				IsFile = true;
 				name = storageFile.Name;
 			}
@@ -117,7 +126,7 @@ namespace FolderTagExplorer
 			{
 				try
 				{
-					storageFolder = await StorageFolder.GetFolderFromPathAsync(Path);
+					storageFolder = await StorageFolder.GetFolderFromPathAsync(path);
 					name = storageFolder.Name;
 				}
 				catch (Exception e2)
@@ -189,11 +198,14 @@ namespace FolderTagExplorer
 				bitmapImage.SetSource(thumbnail);
 			}
 			
-			this.recordings.Add(new NamedColor(Path, IsFile, name, bitmapImage));
-			
 			if (!is_init)
 			{
-				DataAccess.AddData(Path);
+				this.recordings.Insert(0, new NamedColor(path, IsFile, name, bitmapImage));
+				DataAccess.AddData(path);
+			}
+			else
+			{
+				this.recordings.Add(new NamedColor(path, IsFile, name, bitmapImage));
 			}
 		}
 		

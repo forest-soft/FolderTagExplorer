@@ -9,7 +9,13 @@ namespace DataAccessLibrary
 	public static class DataAccess
 	{
 		private static string default_data_name = "Main";
-		
+
+
+		/// <summary>
+		/// Sqliteへのコネクションを取得する。
+		/// </summary>
+		/// <param name="data_name">データ名</param>
+		/// <returns>コネクションオブジェクト</returns>
 		private static SqliteConnection GetConnection(string data_name = null)
 		{
 			if (data_name == null)
@@ -22,6 +28,10 @@ namespace DataAccessLibrary
 			return connection;
 		}
 		
+		/// <summary>
+		/// Sqliteファイルの初期化処理を行う。
+		/// </summary>
+		/// <param name="data_name">データ名</param>
 		public async static void InitializeDatabase(string data_name = null)
 		{
 			if (data_name == null)
@@ -34,7 +44,7 @@ namespace DataAccessLibrary
 			{
 				db.Open();
 				
-				String tableCommand = "CREATE TABLE IF NOT EXISTS Folder (" +
+				String tableCommand = "CREATE TABLE IF NOT EXISTS Item (" +
 											"id INTEGER PRIMARY KEY, " +
 											"path NVARCHAR(2048) NULL" +
 									  ")";
@@ -45,27 +55,33 @@ namespace DataAccessLibrary
 			}
 		}
 		
-		public static void AddData(string inputText)
+		public static Dictionary<String, String> GetItemByPath(string path)
 		{
-			string dbpath = Path.Combine(ApplicationData.Current.LocalFolder.Path, "sqliteSample.db");
-			// using (SqliteConnection db = new SqliteConnection($"Filename={dbpath}"))
+			Dictionary<String, String> result = null;
+			
 			using (SqliteConnection db = GetConnection())
-				
 			{
 				db.Open();
 				
-				SqliteCommand insertCommand = new SqliteCommand();
-				insertCommand.Connection = db;
+				SqliteCommand sql_command = new SqliteCommand();
+				sql_command.Connection = db;
 				
-				// Use parameterized query to prevent SQL injection attacks
-				insertCommand.CommandText = "INSERT INTO Folder (id, path) VALUES (NULL, @Entry);";
-				insertCommand.Parameters.AddWithValue("@Entry", inputText);
+				sql_command.CommandText = "SELECT * FROM Item WHERE path = @path;";
+				sql_command.Parameters.AddWithValue("@path", path);
+
+				SqliteDataReader query = sql_command.ExecuteReader();
 				
-				insertCommand.ExecuteReader();
-				
-				db.Close();
+				while (query.Read())
+				{
+					result = new Dictionary<String, String>();
+					result["id"] = query["id"].ToString();
+					result["path"] = query["path"].ToString();
+					
+					break;
+				}
 			}
 			
+			return result;
 		}
 		
 		public static List<Dictionary<String, String>> SelectAllData()
@@ -79,8 +95,7 @@ namespace DataAccessLibrary
 				SqliteCommand sql_command = new SqliteCommand();
 				sql_command.Connection = db;
 				
-				// Use parameterized query to prevent SQL injection attacks
-				sql_command.CommandText = "SELECT * FROM Folder ORDER BY id ASC;";
+				sql_command.CommandText = "SELECT * FROM Item ORDER BY id DESC;";
 				
 				SqliteDataReader query = sql_command.ExecuteReader();
 				
@@ -93,10 +108,31 @@ namespace DataAccessLibrary
 					entries.Add(data);
 				}
 				
-				db.Close();
+				// db.Close();
 			}
 			
 			return entries;
 		}
+		
+		public static void AddData(string inputText)
+		{
+			using (SqliteConnection db = GetConnection())
+			{
+				db.Open();
+				
+				SqliteCommand insertCommand = new SqliteCommand();
+				insertCommand.Connection = db;
+				
+				// Use parameterized query to prevent SQL injection attacks
+				insertCommand.CommandText = "INSERT INTO Item (id, path) VALUES (NULL, @Entry);";
+				insertCommand.Parameters.AddWithValue("@Entry", inputText);
+				
+				insertCommand.ExecuteReader();
+				
+				// db.Close();
+			}
+			
+		}
+		
 	}
 }
