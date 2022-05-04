@@ -130,7 +130,7 @@ namespace FolderTagExplorer
             }
 
             StorageFile imageFile = null;
-            if (storageFile == null)
+            if (storageFile == null && storageFolder != null)
             {
                 QueryOptions options = new QueryOptions();
                 options.FolderDepth = FolderDepth.Shallow;
@@ -162,12 +162,30 @@ namespace FolderTagExplorer
             }
             else
             {
-                imageFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Mochi.png"));
+                // imageFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Mochi.png"));
+                
             }
 
+
             var bitmapImage = new BitmapImage();
-            var thumbnail = await imageFile.GetThumbnailAsync(ThumbnailMode.SingleItem, 600);
-            if (thumbnail == null || thumbnail.Type == ThumbnailType.Icon)
+            StorageItemThumbnail thumbnail = null;
+            if (imageFile != null)
+            {
+                thumbnail = await imageFile.GetThumbnailAsync(ThumbnailMode.SingleItem, 600);
+            }
+            else
+            {
+                if (storageFile != null)
+                {
+                    thumbnail = await storageFile.GetThumbnailAsync(ThumbnailMode.SingleItem, 600);
+                }
+                else if (storageFolder != null)
+                {
+                    thumbnail = await storageFolder.GetThumbnailAsync(ThumbnailMode.SingleItem, 600);
+                }
+            }
+            
+            if (thumbnail == null || (imageFile != null && thumbnail.Type == ThumbnailType.Icon))
             {
                 // サムネイルのキャッシュが作られてない場合はデフォルトの画像アイコンが返ってきてしまうので、
                 // その場合はオリジナル画像をそのまま表示する。
