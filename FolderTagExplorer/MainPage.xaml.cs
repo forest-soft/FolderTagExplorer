@@ -239,6 +239,8 @@ namespace FolderTagExplorer
 			{
 				MessageDialog md = new MessageDialog("ファイル、フォルダが見つかりませんでした。");
 				await md.ShowAsync();
+
+				this.ImageGridView.SelectedIndex = -1;
 				return;
 			}
 
@@ -259,6 +261,8 @@ namespace FolderTagExplorer
 				StorageFolder storageFolder = await StorageFolder.GetFolderFromPathAsync(ClickedItem.Path);
 				await Launcher.LaunchFolderAsync(storageFolder);
 			}
+
+			this.ImageGridView.SelectedIndex = -1;
 		}
 
 		/// <summary>
