@@ -24,6 +24,8 @@ using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
 using DataAccessLibrary;
 using Windows.Storage.FileProperties;
+using Windows.UI.WindowManagement;
+using Windows.UI.ViewManagement;
 
 // 空白ページの項目テンプレートについては、https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x411 を参照してください
 
@@ -35,32 +37,60 @@ namespace FolderTagExplorer
 	public sealed partial class MainPage : Page
 	{
 		private ObservableCollection<NamedColor> recordings = new ObservableCollection<NamedColor>();
+		private string data_name = "Main";
 
 		public MainPage()
 		{
 			this.InitializeComponent();
 
 			this.init();
-
-			// this.ImageGridView.Items.
 		}
 
 		private async void init()
 		{
-			// SQLiteのDBに初期データを流し込む。
-			DataAccess.InitializeDatabase();
+			ApplicationView.GetForCurrentView().Title = data_name;
 
-			List<Dictionary<String, String>> list = DataAccess.SelectAllData();
+			// SQLiteのDBに初期データを流し込む。
+			DataAccess.InitializeDatabase(this.data_name);
+
+			Boolean is_show_permission_dialog = false;
+			List<Dictionary<String, String>> list = DataAccess.SelectAllData(this.data_name);
 			foreach (var v in list)
 			{
-				await this.AddItem(v["path"], true, v["id"]);
+				Boolean add_result = await this.AddItem(v["path"], true, v["id"]);
+				if (!add_result)
+				{
+					is_show_permission_dialog = true;
+				}
+			}
+
+			if (is_show_permission_dialog)
+			{
+				await this.ShowPermissionDialog();
+			}
+		}
+
+		private async Task ShowPermissionDialog()
+		{
+			ContentDialog noWifiDialog = new ContentDialog
+			{
+				// Title = "",
+				Content = "ファイル、フォルダにアクセスできませんでした。\r\n本アプリにファイルシステムへのアクセス許可を付与していない場合は、\r\nファイルシステムへのアクセス許可を付与してください。",
+				PrimaryButtonText = "アプリのアクセス許可設定画面を開く",
+				CloseButtonText = "閉じる"
+			};
+			ContentDialogResult result = await noWifiDialog.ShowAsync();
+			if (result == ContentDialogResult.Primary)
+			{
+				// await Windows.System.Launcher.LaunchUriAsync(new Uri("ms-settings:privacy-broadfilesystemaccess"));
+				await Windows.System.Launcher.LaunchUriAsync(new Uri("ms-settings:appsfeatures-app"));
 			}
 		}
 
 		private void Page_DragOver(object sender, DragEventArgs e)
 		{
 			e.AcceptedOperation = DataPackageOperation.Link;
-			e.DragUIOverride.Caption = "インポート";
+			e.DragUIOverride.Caption = "リストに追加する";
 		}
 
 		private async void Page_Drop(object sender, DragEventArgs e)
@@ -103,14 +133,14 @@ namespace FolderTagExplorer
 			// DataAccess.AddData("button_click");
 		}
 
-		private async Task AddItem(string path, bool is_init = false, string id = null)
+		private async Task<Boolean> AddItem(string path, bool is_init = false, string id = null)
 		{
 			if (!is_init)
 			{
 				// 既に登録済みのPathであれば追加しない。
-				if (DataAccess.GetItemByPath(path) != null)
+				if (DataAccess.GetItemByPath(this.data_name, path) != null)
 				{
-					return;
+					return false;
 				}
 			}
 
@@ -138,9 +168,11 @@ namespace FolderTagExplorer
 				{
 					if (!is_init)
 					{
-						MessageDialog md = new MessageDialog("ファイル、フォルダが見つかりませんでした。");
-						await md.ShowAsync();
-						return;
+						// MessageDialog md = new MessageDialog("ファイル、フォルダが見つかりませんでした。");
+						// await md.ShowAsync();
+
+						await this.ShowPermissionDialog();
+						return false;
 					}
 
 					name = Path.GetFileName(path);
@@ -221,7 +253,7 @@ namespace FolderTagExplorer
 
 			if (!is_init)
 			{
-				id = DataAccess.AddData(path);
+				id = DataAccess.AddData(this.data_name, path);
 				this.recordings.Insert(0, new NamedColor(id, path, IsFile, name, is_exist, bitmapImage));
 				
 			}
@@ -229,6 +261,8 @@ namespace FolderTagExplorer
 			{
 				this.recordings.Add(new NamedColor(id, path, IsFile, name, is_exist, bitmapImage));
 			}
+
+			return is_exist;
 		}
 
 		private async void ImageGridView_ItemClick(object sender, ItemClickEventArgs e)
@@ -288,7 +322,7 @@ namespace FolderTagExplorer
 				ContentDialogResult result = await noWifiDialog.ShowAsync();
 				if (result == ContentDialogResult.Primary)
 				{
-					DataAccess.DeleteItemData(select_item.Id);
+					DataAccess.DeleteItemData(this.data_name, select_item.Id);
 					this.recordings.Remove(select_item);
 				}
 			}

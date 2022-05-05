@@ -8,21 +8,13 @@ namespace DataAccessLibrary
 {
 	public static class DataAccess
 	{
-		private static string default_data_name = "Main";
-
-
 		/// <summary>
 		/// Sqliteへのコネクションを取得する。
 		/// </summary>
 		/// <param name="data_name">データ名</param>
 		/// <returns>コネクションオブジェクト</returns>
-		private static SqliteConnection GetConnection(string data_name = null)
+		private static SqliteConnection GetConnection(string data_name)
 		{
-			if (data_name == null)
-			{
-				data_name = default_data_name;
-			}
-
 			string dbpath = Path.Combine(ApplicationData.Current.LocalFolder.Path, data_name + ".db");
 			SqliteConnection connection = new SqliteConnection($"Filename={dbpath}");
 			return connection;
@@ -32,15 +24,10 @@ namespace DataAccessLibrary
 		/// Sqliteファイルの初期化処理を行う。
 		/// </summary>
 		/// <param name="data_name">データ名</param>
-		public async static void InitializeDatabase(string data_name = null)
+		public async static void InitializeDatabase(string data_name)
 		{
-			if (data_name == null)
-			{
-				data_name = default_data_name;
-			}
-
 			await ApplicationData.Current.LocalFolder.CreateFileAsync(data_name + ".db", CreationCollisionOption.OpenIfExists);
-			using (SqliteConnection db = GetConnection())
+			using (SqliteConnection db = GetConnection(data_name))
 			{
 				db.Open();
 
@@ -55,11 +42,11 @@ namespace DataAccessLibrary
 			}
 		}
 
-		public static Dictionary<String, String> GetItemByPath(string path)
+		public static Dictionary<String, String> GetItemByPath(string data_name, string path)
 		{
 			Dictionary<String, String> result = null;
 
-			using (SqliteConnection db = GetConnection())
+			using (SqliteConnection db = GetConnection(data_name))
 			{
 				db.Open();
 
@@ -84,11 +71,11 @@ namespace DataAccessLibrary
 			return result;
 		}
 
-		public static List<Dictionary<String, String>> SelectAllData()
+		public static List<Dictionary<String, String>> SelectAllData(string data_name)
 		{
 			List<Dictionary<String, String>> entries = new List<Dictionary<String, String>>();
 
-			using (SqliteConnection db = GetConnection())
+			using (SqliteConnection db = GetConnection(data_name))
 			{
 				db.Open();
 
@@ -114,10 +101,10 @@ namespace DataAccessLibrary
 			return entries;
 		}
 
-		public static string AddData(string inputText)
+		public static string AddData(string data_name, string inputText)
 		{
 			string id = null;
-			using (SqliteConnection db = GetConnection())
+			using (SqliteConnection db = GetConnection(data_name))
 			{
 				db.Open();
 
@@ -141,9 +128,9 @@ namespace DataAccessLibrary
 			return id;
 		}
 
-		public static void DeleteItemData(string id)
+		public static void DeleteItemData(string data_name, string id)
 		{
-			using (SqliteConnection db = GetConnection())
+			using (SqliteConnection db = GetConnection(data_name))
 			{
 				db.Open();
 

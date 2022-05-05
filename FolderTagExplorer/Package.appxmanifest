@@ -5,7 +5,8 @@
   xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest"
   xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
   xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
-  IgnorableNamespaces="uap mp">
+  xmlns:desktop4="http://schemas.microsoft.com/appx/manifest/desktop/windows10/4"
+  IgnorableNamespaces="uap mp rescap desktop4">
 
   <Identity
     Name="83dde9ad-da1e-4f0d-bbc6-90fefab5882d"
@@ -31,7 +32,8 @@
   <Applications>
     <Application Id="App"
       Executable="$targetnametoken$.exe"
-      EntryPoint="FolderTagExplorer.App">
+      EntryPoint="FolderTagExplorer.App"
+      desktop4:SupportsMultipleInstances="true">
       <uap:VisualElements
         DisplayName="FolderTagExplorer"
         Square150x150Logo="Assets\Square150x150Logo.png"
