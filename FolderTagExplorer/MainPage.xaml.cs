@@ -42,6 +42,7 @@ namespace FolderTagExplorer
 		public MainPage()
 		{
 			this.InitializeComponent();
+			this.NavigationCacheMode = NavigationCacheMode.Enabled;
 
 			this.init();
 		}
@@ -127,10 +128,9 @@ namespace FolderTagExplorer
 			// 要素追加時に追加した要素の位置までスクロールさせたい。
 		}
 
-		private void Button_Click(object sender, RoutedEventArgs e)
+		private async void Button_Click(object sender, RoutedEventArgs e)
 		{
-			//this.addItem("c:\\ddd");
-			// DataAccess.AddData("button_click");
+			this.Frame.Navigate(typeof(TagPage));
 		}
 
 		private async Task<Boolean> AddItem(string path, bool is_init = false, string id = null)

@@ -1,0 +1,26 @@
+﻿<Page
+    x:Class="FolderTagExplorer.TagPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:FolderTagExplorer"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+	<RelativePanel>
+		<TextBlock x:Name="TitleTextBlock" Text="タグ管理" Margin="0,30,0,24" Style="{StaticResource TitleTextBlockStyle}" RelativePanel.AlignHorizontalCenterWithPanel="True" RelativePanel.AlignTopWithPanel="True"/>
+
+		<Button x:Name="BackButton" Margin="30,30,0,0" Click="BackButton_Click" Width="50" Height="49" RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignTopWithPanel="True">
+			<StackPanel>
+				<SymbolIcon Symbol="Back" />
+			</StackPanel>
+		</Button>
+
+		<Button x:Name="AddButton" Click="AddButton_Click" HorizontalAlignment="Right" RelativePanel.AlignRightWithPanel="True" VerticalAlignment="Top" RelativePanel.AlignTopWithPanel="True" Margin="0,30,30,0" Width="50" Height="50">
+			<StackPanel>
+				<SymbolIcon Symbol="Add" />
+			</StackPanel>
+		</Button>
+	</RelativePanel>
+</Page>

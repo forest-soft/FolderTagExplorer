@@ -43,7 +43,7 @@
                 </ItemsPanelTemplate>
 			</GridView.ItemsPanel>
 		</GridView>
-        <Button Content="Button" Margin="200,10,0,0" Click="Button_Click"/>
+        <Button Content="タグ管理" Margin="200,10,0,0" Click="Button_Click"/>
     </RelativePanel>
 
 

@@ -31,14 +31,24 @@ namespace DataAccessLibrary
 			{
 				db.Open();
 
-				String tableCommand = "CREATE TABLE IF NOT EXISTS Item (" +
+				SqliteCommand createTable = new SqliteCommand();
+				createTable.Connection = db;
+
+				// Itemテーブル
+				String sql = "CREATE TABLE IF NOT EXISTS Item (" +
 											"id INTEGER PRIMARY KEY, " +
 											"path NVARCHAR(2048) NULL" +
 									  ")";
+				createTable.CommandText = sql;
+				createTable.ExecuteNonQuery();
 
-				SqliteCommand createTable = new SqliteCommand(tableCommand, db);
-
-				createTable.ExecuteReader();
+				// Tagテーブル
+				sql = "CREATE TABLE IF NOT EXISTS Tag (" +
+						"id INTEGER PRIMARY KEY, " +
+						"name NVARCHAR(2048) NULL" +
+					")";
+				createTable.CommandText = sql;
+				createTable.ExecuteNonQuery();
 			}
 		}
 
@@ -142,6 +152,64 @@ namespace DataAccessLibrary
 
 				// db.Close();
 			}
+		}
+
+
+		public static string AddTagData(string data_name, string name)
+		{
+			string id = null;
+			using (SqliteConnection db = GetConnection(data_name))
+			{
+				db.Open();
+
+				SqliteCommand command = new SqliteCommand();
+				command.Connection = db;
+
+				command.CommandText = "INSERT INTO Tag (id, name) VALUES (NULL, @name);";
+				command.Parameters.AddWithValue("@name", name);
+				command.ExecuteNonQuery();
+
+				command.CommandText = "SELECT last_insert_rowid();";
+				id = command.ExecuteScalar().ToString();
+			}
+
+			return id;
+		}
+
+
+		public static Dictionary<String, String> GetTagByName(string data_name, string name, string ignore_id = null)
+		{
+			Dictionary<String, String> result = null;
+
+			using (SqliteConnection db = GetConnection(data_name))
+			{
+				db.Open();
+
+				SqliteCommand sql_command = new SqliteCommand();
+				sql_command.Connection = db;
+
+				sql_command.CommandText = "SELECT * FROM Tag WHERE name = @name ";
+				sql_command.Parameters.AddWithValue("@name", name);
+
+				if (ignore_id != null)
+				{
+					sql_command.CommandText += "AND id <> @ignore_id";
+					sql_command.Parameters.AddWithValue("@ignore_id", ignore_id);
+				}
+
+				SqliteDataReader query = sql_command.ExecuteReader();
+
+				while (query.Read())
+				{
+					result = new Dictionary<String, String>();
+					result["id"] = query["id"].ToString();
+					result["name"] = query["name"].ToString();
+
+					break;
+				}
+			}
+
+			return result;
 		}
 
 	}
