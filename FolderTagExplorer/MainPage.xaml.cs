@@ -311,7 +311,12 @@ namespace FolderTagExplorer
 			string type = (String)((FrameworkElement)sender).Tag;
 			NamedColor select_item = (NamedColor)((FrameworkElement)sender).DataContext;
 
-			if (type == "delete")
+			if (type == "tag_relation")
+			{
+				TagSelectDialog ddd = new TagSelectDialog();
+				await ddd.ShowAsync();
+			}
+			else if (type == "delete")
 			{
 				ContentDialog noWifiDialog = new ContentDialog
 				{

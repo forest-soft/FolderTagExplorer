@@ -31,6 +31,7 @@
 
 						<StackPanel.ContextFlyout>
 							<MenuFlyout>
+								<MenuFlyoutItem Text="タグ紐付け" Icon="Delete" Click="ImageGridViewItem_MenuFlyoutItem_Click" Tag="tag_relation"/>
 								<MenuFlyoutItem Text="リストから削除" Icon="Delete" Click="ImageGridViewItem_MenuFlyoutItem_Click" Tag="delete"/>
 							</MenuFlyout>
 						</StackPanel.ContextFlyout>
