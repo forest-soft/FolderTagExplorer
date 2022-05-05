@@ -24,9 +24,23 @@ namespace FolderTagExplorer
 	/// </summary>
 	public sealed partial class TagPage : Page
 	{
+		private string data_name = null;
+
 		public TagPage()
 		{
 			this.InitializeComponent();
+		}
+
+		protected override void OnNavigatedTo(NavigationEventArgs e)
+		{
+			if (e.Parameter is Dictionary<String, String>)
+			{
+				Dictionary<String, String> param = (Dictionary<String, String>)e.Parameter;
+
+				this.data_name = param["data_name"];
+			}
+
+			base.OnNavigatedTo(e);
 		}
 
 		private void BackButton_Click(object sender, RoutedEventArgs e)
@@ -47,20 +61,6 @@ namespace FolderTagExplorer
 			dialog.IsSecondaryButtonEnabled = true;
 			dialog.PrimaryButtonText = "登録";
 			dialog.SecondaryButtonText = "キャンセル";
-
-			/*
-			dialog.PrimaryButtonClick += (sender2, e2) =>
-			{
-				if (inputTextBox.Text.Length == 0)
-				{
-					e2.Cancel = true;
-				}
-				else
-				{
-					dialog.Hide();
-				}
-			};
-			*/
 			dialog.PrimaryButtonClick += AddDialog_AddButton_Click;
 			await dialog.ShowAsync();
 		}
@@ -72,8 +72,10 @@ namespace FolderTagExplorer
 			string error_message = this.Validate(name);
 			if (error_message.Length != 0)
 			{
+				// ダイアログを多重で表示できないので登録ダイアログを一旦閉じる。
 				sender.Hide();
 
+				// エラーメッセージのダイアログを表示する。
 				ContentDialog error_dialog = new ContentDialog
 				{
 					Content = error_message,
@@ -81,12 +83,12 @@ namespace FolderTagExplorer
 				};
 				await error_dialog.ShowAsync();
 
+				// 再度登録ダイアログを表示する。
 				await sender.ShowAsync();
 			}
 			else
 			{
-				DataAccess.AddTagData("Main", name);
-
+				DataAccess.AddTagData(this.data_name, name);
 				sender.Hide();
 			}
 		}
@@ -98,7 +100,7 @@ namespace FolderTagExplorer
 				return "タグを入力してください。";
 			}
 
-			if (DataAccess.GetTagByName("Main", name, id) != null)
+			if (DataAccess.GetTagByName(this.data_name, name, id) != null)
 			{
 				return "既に存在するタグです。";
 			}

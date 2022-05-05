@@ -130,7 +130,9 @@ namespace FolderTagExplorer
 
 		private async void Button_Click(object sender, RoutedEventArgs e)
 		{
-			this.Frame.Navigate(typeof(TagPage));
+			Dictionary<String, String> param = new Dictionary<String, String>();
+			param["data_name"] = this.data_name;
+			this.Frame.Navigate(typeof(TagPage), param);
 		}
 
 		private async Task<Boolean> AddItem(string path, bool is_init = false, string id = null)
