@@ -31,24 +31,53 @@ namespace DataAccessLibrary
 			{
 				db.Open();
 
-				SqliteCommand createTable = new SqliteCommand();
-				createTable.Connection = db;
+				SqliteCommand command = new SqliteCommand();
+				command.Connection = db;
+
+				String sql = "";
 
 				// Itemテーブル
-				String sql = "CREATE TABLE IF NOT EXISTS Item (" +
-											"id INTEGER PRIMARY KEY, " +
-											"path NVARCHAR(2048) NULL" +
-									  ")";
-				createTable.CommandText = sql;
-				createTable.ExecuteNonQuery();
+				sql = "SELECT count(*) FROM sqlite_master WHERE type = 'table' AND name = 'Item'";
+				command.CommandText = sql;
+				if (command.ExecuteScalar().ToString() == "0")
+				{
+					sql = "CREATE TABLE Item(" +
+								"id INTEGER NOT NULL PRIMARY KEY" +
+								", path NVARCHAR(2048) NOT NULL" +
+							")";
+					command.CommandText = sql;
+					command.ExecuteNonQuery();
+				}
+
 
 				// Tagテーブル
-				sql = "CREATE TABLE IF NOT EXISTS Tag (" +
-						"id INTEGER PRIMARY KEY, " +
-						"name NVARCHAR(2048) NULL" +
-					")";
-				createTable.CommandText = sql;
-				createTable.ExecuteNonQuery();
+				sql = "SELECT count(*) FROM sqlite_master WHERE type = 'table' AND name = 'Tag'";
+				command.CommandText = sql;
+				if (command.ExecuteScalar().ToString() == "0")
+				{
+					sql = "CREATE TABLE Tag(" +
+								"id INTEGER NOT NULL PRIMARY KEY" +
+								", name NVARCHAR(2048) NOT NULL" +
+							")";
+					command.CommandText = sql;
+					command.ExecuteNonQuery();
+				}
+
+				// Tag×Itemのリレーションテーブル
+				sql = "SELECT count(*) FROM sqlite_master WHERE type = 'table' AND name = 'R_TAG_FOR_ITEM'";
+				command.CommandText = sql;
+				if (command.ExecuteScalar().ToString() == "0")
+				{
+					sql = "CREATE TABLE R_TAG_FOR_ITEM(" +
+							"tag_id INTEGER NOT NULL" +
+							", item_id INTEGER NOT NULL" +
+							", FOREIGN KEY (tag_id) REFERENCES Tag(id)" +
+							", FOREIGN KEY (item_id) REFERENCES Item(id)" +
+							", UNIQUE (tag_id, item_id)" +
+						");";
+					command.CommandText = sql;
+					command.ExecuteNonQuery();
+				}
 			}
 		}
 
