@@ -22,6 +22,8 @@ namespace FolderTagExplorer
 	/// </summary>
 	sealed partial class App : Application
 	{
+		public Dictionary<string, Dictionary<string, string>> tag_list = new Dictionary<string, Dictionary<string, string>>();
+
 		/// <summary>
 		///単一アプリケーション オブジェクトを初期化します。これは、実行される作成したコードの
 		///最初の行であるため、論理的には main() または WinMain() と等価です。

@@ -81,6 +81,52 @@ namespace DataAccessLibrary
 			}
 		}
 
+		public static Dictionary<String, Object> GetItem(string data_name, string id)
+		{
+			Dictionary<String, Object> result = null;
+
+			using (SqliteConnection db = GetConnection(data_name))
+			{
+				db.Open();
+
+				SqliteCommand sql_command = new SqliteCommand();
+				sql_command.Connection = db;
+
+				sql_command.CommandText = "SELECT * FROM Item WHERE id = @id";
+				sql_command.Parameters.AddWithValue("@id", id);
+
+				SqliteDataReader query = sql_command.ExecuteReader();
+
+				while (query.Read())
+				{
+					result = new Dictionary<String, Object>();
+					result["id"] = query["id"].ToString();
+					result["path"] = query["path"].ToString();
+
+					SqliteCommand sub_sql_command = new SqliteCommand();
+					sub_sql_command.Connection = db;
+
+					sub_sql_command.CommandText = "SELECT tag_id " +
+													"FROM R_TAG_FOR_ITEM " +
+													"WHERE item_id = @item_id " +
+													"ORDER BY tag_id ASC";
+					sub_sql_command.Parameters.AddWithValue("@item_id", result["id"]);
+					SqliteDataReader sub_query = sub_sql_command.ExecuteReader();
+					Dictionary<String, string> tag_id_list = new Dictionary<String, string>();
+					while (sub_query.Read())
+					{
+						string tag_id = sub_query["tag_id"].ToString();
+						tag_id_list[tag_id] = tag_id;
+					}
+					result["tag_id_list"] = tag_id_list;
+
+					break;
+				}
+			}
+
+			return result;
+		}
+
 		public static Dictionary<String, String> GetItemByPath(string data_name, string path)
 		{
 			Dictionary<String, String> result = null;
@@ -175,11 +221,17 @@ namespace DataAccessLibrary
 
 				SqliteCommand sql_command = new SqliteCommand();
 				sql_command.Connection = db;
+
+				sql_command.CommandText = "DELETE FROM R_TAG_FOR_ITEM WHERE item_id = @item_id;";
+				sql_command.Parameters.AddWithValue("@item_id", id);
+				sql_command.ExecuteNonQuery();
+				sql_command.Parameters.Clear();
+
 				sql_command.CommandText = "DELETE FROM Item WHERE id = @id;";
 				sql_command.Parameters.AddWithValue("@id", id);
-				sql_command.ExecuteReader();
+				sql_command.ExecuteNonQuery();
+				sql_command.Parameters.Clear();
 
-				// db.Close();
 			}
 		}
 
@@ -203,6 +255,62 @@ namespace DataAccessLibrary
 			}
 
 			return id;
+		}
+
+		public static Dictionary<string, Dictionary<String, String>> GetTagList(string data_name)
+		{
+			Dictionary<string, Dictionary<String, String>> result = new Dictionary<string, Dictionary<String, String>>();
+
+			using (SqliteConnection db = GetConnection(data_name))
+			{
+				db.Open();
+
+				SqliteCommand sql_command = new SqliteCommand();
+				sql_command.Connection = db;
+				sql_command.CommandText = "SELECT * FROM Tag ORDER BY name ASC;";
+
+				SqliteDataReader query = sql_command.ExecuteReader();
+
+				while (query.Read())
+				{
+					Dictionary<String, String> data = new Dictionary<String, String>();
+					data["id"] = query["id"].ToString();
+					data["name"] = query["name"].ToString();
+
+					result[data["id"]] = data;
+				}
+			}
+
+			return result;
+		}
+
+		public static Dictionary<String, String> GetTag(string data_name, string id)
+		{
+			Dictionary<String, String> result = null;
+
+			using (SqliteConnection db = GetConnection(data_name))
+			{
+				db.Open();
+
+				SqliteCommand sql_command = new SqliteCommand();
+				sql_command.Connection = db;
+
+				sql_command.CommandText = "SELECT * FROM Tag WHERE id = @id ";
+				sql_command.Parameters.AddWithValue("@id", id);
+
+				SqliteDataReader query = sql_command.ExecuteReader();
+
+				while (query.Read())
+				{
+					result = new Dictionary<String, String>();
+					result["id"] = query["id"].ToString();
+					result["name"] = query["name"].ToString();
+
+					break;
+				}
+			}
+
+			return result;
 		}
 
 
@@ -240,6 +348,35 @@ namespace DataAccessLibrary
 
 			return result;
 		}
+
+		public static string SaveTagRelationForItem(string data_name, string item_id, List<Dictionary<String, String>> tag_id_list)
+		{
+			string id = null;
+			using (SqliteConnection db = GetConnection(data_name))
+			{
+				db.Open();
+
+				SqliteCommand command = new SqliteCommand();
+				command.Connection = db;
+
+				command.CommandText = "DELETE FROM R_TAG_FOR_ITEM WHERE item_id = @item_id;";
+				command.Parameters.AddWithValue("@item_id", item_id);
+				command.ExecuteNonQuery();
+				command.Parameters.Clear();
+
+				foreach (var v in tag_id_list)
+				{
+					command.CommandText = "INSERT INTO R_TAG_FOR_ITEM (tag_id, item_id) VALUES (@tag_id, @item_id);";
+					command.Parameters.AddWithValue("@tag_id", v["id"]);
+					command.Parameters.AddWithValue("@item_id", item_id);
+					command.ExecuteNonQuery();
+					command.Parameters.Clear();
+				}
+			}
+
+			return id;
+		}
+
 
 	}
 }

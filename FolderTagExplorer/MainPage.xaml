@@ -14,6 +14,7 @@
         <TextBlock x:Name="TitleTextBlock" Text="Collection" Margin="24,0,0,24" Style="{StaticResource TitleTextBlockStyle}"/>
         <GridView
             x:Name="ImageGridView"
+            Margin="10,0,10,0"
             RelativePanel.AlignLeftWithPanel="True"
             RelativePanel.AlignRightWithPanel="True"
             RelativePanel.Below="TitleTextBlock"
@@ -24,14 +25,18 @@
             ItemClick="ImageGridView_ItemClick">
             <GridView.ItemTemplate>
                 <DataTemplate x:Name="IconTextTemplate" x:DataType="local:NamedColor">
-                    <StackPanel Width="310" Height="350" Padding="5" Orientation="Vertical" Background="White">
+                    <StackPanel Width="310" Height="370" Padding="5" Orientation="Vertical" Background="White">
 						<FontIcon Width="250" Height="300" FontFamily="Segoe MDL2 Assets" Glyph="&#xF78A;" FontSize="100" Visibility="{x:Bind NotExistIconVisibility}" Foreground="Red"/>
 						<Image Width="300" Height="300" Source="{x:Bind ImageSource}" Opacity="1" Stretch="Uniform" Visibility="{x:Bind ImageVisibility}" />
                         <TextBlock x:Name="DisplayName" Margin="10,10,0,0" Text="{x:Bind DisplayName}"/>
-
+						<StackPanel Margin="10,0,0,0" Orientation="Horizontal" HorizontalAlignment="Left">
+							<SymbolIcon Symbol="Tag" />
+							<TextBlock Margin="10,0,0,0" x:Name="DisplayTagName" Text="{x:Bind DisplayTagName}"/>
+						</StackPanel>
 						<StackPanel.ContextFlyout>
 							<MenuFlyout>
-								<MenuFlyoutItem Text="タグ紐付け" Icon="Delete" Click="ImageGridViewItem_MenuFlyoutItem_Click" Tag="tag_relation"/>
+								<MenuFlyoutItem Text="タグ紐付け" Icon="Tag" Click="ImageGridViewItem_MenuFlyoutItem_Click" Tag="tag_relation"/>
+								<MenuFlyoutSeparator />
 								<MenuFlyoutItem Text="リストから削除" Icon="Delete" Click="ImageGridViewItem_MenuFlyoutItem_Click" Tag="delete"/>
 							</MenuFlyout>
 						</StackPanel.ContextFlyout>
@@ -40,7 +45,7 @@
             </GridView.ItemTemplate>
             <GridView.ItemsPanel>
                 <ItemsPanelTemplate>
-                    <ItemsWrapGrid Orientation="Horizontal" HorizontalAlignment="Center"/>
+                    <ItemsWrapGrid Orientation="Horizontal" HorizontalAlignment="Left"/>
                 </ItemsPanelTemplate>
 			</GridView.ItemsPanel>
 		</GridView>

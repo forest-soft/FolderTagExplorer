@@ -26,6 +26,8 @@ using DataAccessLibrary;
 using Windows.Storage.FileProperties;
 using Windows.UI.WindowManagement;
 using Windows.UI.ViewManagement;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
 // 空白ページの項目テンプレートについては、https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x411 を参照してください
 
@@ -49,10 +51,15 @@ namespace FolderTagExplorer
 
 		private async void init()
 		{
+			this.ImageGridView.DataContext = this.recordings;
+
 			ApplicationView.GetForCurrentView().Title = data_name;
 
 			// SQLiteのDBに初期データを流し込む。
 			DataAccess.InitializeDatabase(this.data_name);
+
+			// タグリスト取得
+			((App)Application.Current).tag_list = DataAccess.GetTagList(this.data_name);
 
 			Boolean is_show_permission_dialog = false;
 			List<Dictionary<String, String>> list = DataAccess.SelectAllData(this.data_name);
@@ -256,12 +263,12 @@ namespace FolderTagExplorer
 			if (!is_init)
 			{
 				id = DataAccess.AddData(this.data_name, path);
-				this.recordings.Insert(0, new NamedColor(id, path, IsFile, name, is_exist, bitmapImage));
-				
+				this.recordings.Insert(0, new NamedColor(id, path, IsFile, name, null, is_exist, bitmapImage));
 			}
 			else
 			{
-				this.recordings.Add(new NamedColor(id, path, IsFile, name, is_exist, bitmapImage));
+				Dictionary<string, object> item_data = DataAccess.GetItem(this.data_name, id);
+				this.recordings.Add(new NamedColor(id, path, IsFile, name, (Dictionary<string, string>)item_data["tag_id_list"], is_exist, bitmapImage));
 			}
 
 			return is_exist;
@@ -313,8 +320,19 @@ namespace FolderTagExplorer
 
 			if (type == "tag_relation")
 			{
-				TagSelectDialog ddd = new TagSelectDialog();
-				await ddd.ShowAsync();
+				TagSelectDialog tag_select_dialog = new TagSelectDialog(this.data_name, select_item.Id);
+				ContentDialogResult result = await tag_select_dialog.ShowAsync();
+				if (result == ContentDialogResult.Primary)
+				{
+					Dictionary<string, object> item_data = DataAccess.GetItem(this.data_name, select_item.Id);
+					select_item.TagIdList = (Dictionary<string, string>)item_data["tag_id_list"];
+					select_item.refresh();
+
+					// INotifyPropertyChangedを使うとイイらしいがうまく行かないので、要素を削除&再挿入して再表示させている。
+					int index = this.ImageGridView.IndexFromContainer(this.ImageGridView.ContainerFromItem(select_item));
+					this.recordings.Remove(select_item);
+					this.recordings.Insert(index, select_item);
+				}
 			}
 			else if (type == "delete")
 			{
@@ -334,16 +352,32 @@ namespace FolderTagExplorer
 				}
 			}
 		}
+
 	}
 
 	class NamedColor
 	{
-		public NamedColor(string id, string path, Boolean is_file, string display_name, Boolean is_exist, BitmapImage image)
+		public NamedColor(
+			string id,
+			string path,
+			Boolean is_file,
+			string display_name,
+			Dictionary<string, string> tag_id_list,
+			Boolean is_exist,
+			BitmapImage image
+		)
 		{
 			this.Id = id;
 			this.Path = path;
 			this.IsFile = is_file;
 			this.DisplayName = display_name;
+
+			if (tag_id_list == null)
+			{
+				tag_id_list = new Dictionary<string, string>();
+			}
+			this.TagIdList = tag_id_list;
+
 			this.IsExist = is_exist;
 			
 			if (is_exist)
@@ -357,21 +391,32 @@ namespace FolderTagExplorer
 				this.ImageVisibility = Visibility.Collapsed;
 				this.NotExistIconVisibility = Visibility.Visible;
 			}
+
+			this.refresh();
 		}
 
 		public string Id { get; set; }
-
 		public string Path { get; set; }
-
 		public Boolean IsFile { get; set; }
-
 		public string DisplayName { get; set; }
-
+		public Dictionary<string, string> TagIdList { get; set; }
+		public string DisplayTagName { get; set; }
 		public Boolean IsExist { get; set; }
-
 		public BitmapImage ImageSource { get; set; }
-
 		public Visibility NotExistIconVisibility { get; set; }
 		public Visibility ImageVisibility { get; set; }
+
+		public void refresh()
+		{
+			List<string> tag_name_list = new List<string>();
+			Dictionary<string, Dictionary<string, string>> tag_list = ((App)Application.Current).tag_list;
+
+			foreach (string tag_id in this.TagIdList.Values)
+			{
+				tag_name_list.Add(tag_list[tag_id]["name"]);
+			}
+			this.DisplayTagName = string.Join(", ", tag_name_list);
+		}
+
 	}
 }

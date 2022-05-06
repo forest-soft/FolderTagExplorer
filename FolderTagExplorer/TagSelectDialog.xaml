@@ -6,12 +6,32 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    Title="TITLE"
-    PrimaryButtonText="Button1"
-    SecondaryButtonText="Button2"
+    Title=""
+    PrimaryButtonText="保存"
+    SecondaryButtonText="キャンセル"
     PrimaryButtonClick="ContentDialog_PrimaryButtonClick"
     SecondaryButtonClick="ContentDialog_SecondaryButtonClick">
+	<RelativePanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Height="700" Width="400">
+		<TextBlock x:Name="TitleTextBlock" Text="タグ紐付け" Style="{StaticResource TitleTextBlockStyle}" VerticalAlignment="Top" HorizontalAlignment="Left" RenderTransformOrigin="0.5,0.5" Padding="0,0,0,30"/>
+		<ListView
+            x:Name="TagListView"
+            ItemsSource="{x:Bind tag_list}"
+            SelectionMode="Multiple"
+            VerticalAlignment="Top"
+            RelativePanel.AlignLeftWithPanel="True"
+            RelativePanel.AlignRightWithPanel="True"
+            RelativePanel.AlignBottomWithPanel="True"
+            RelativePanel.Below="TitleTextBlock"
+            Loaded="TagListView_Loaded"
+            >
+			<ListView.ItemTemplate>
+				<DataTemplate x:Name="IconTextTemplate" x:DataType="local:TagListRow">
+					<StackPanel Height="50" Padding="5" Orientation="Vertical">
+						<TextBlock x:Name="Name" Margin="10,10,0,0" Text="{x:Bind Name}"/>
+					</StackPanel>
+				</DataTemplate>
+			</ListView.ItemTemplate>
+		</ListView>
 
-    <Grid>
-    </Grid>
+	</RelativePanel>
 </ContentDialog>
