@@ -12,7 +12,13 @@
     Drop="Page_Drop">
 	<RelativePanel>
         <TextBlock x:Name="TitleTextBlock" Text="Collection" Margin="24,0,0,24" Style="{StaticResource TitleTextBlockStyle}"/>
-        <GridView
+		<Button Content="タグ管理" Margin="200,10,0,0" Click="Button_Click"/>
+
+		<TextBox x:Name="SearchWord" Margin="300,10,0,0" Width="200" Text="" PlaceholderText="検索ワード" KeyDown="SearchWord_KeyDown"/>
+		<Button x:Name="SearchButton" Content="検索" Margin="500,10,0,0" Click="SearchButton_Click"/>
+
+
+		<GridView
             x:Name="ImageGridView"
             Margin="10,0,10,0"
             RelativePanel.AlignLeftWithPanel="True"
@@ -49,7 +55,7 @@
                 </ItemsPanelTemplate>
 			</GridView.ItemsPanel>
 		</GridView>
-        <Button Content="タグ管理" Margin="200,10,0,0" Click="Button_Click"/>
+        
     </RelativePanel>
 
 

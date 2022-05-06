@@ -28,6 +28,9 @@ using Windows.UI.WindowManagement;
 using Windows.UI.ViewManagement;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Threading;
+using Windows.UI.Xaml.Automation.Peers;
+using Windows.UI.Xaml.Automation.Provider;
 
 // 空白ページの項目テンプレートについては、https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x411 を参照してください
 
@@ -38,6 +41,7 @@ namespace FolderTagExplorer
 	/// </summary>
 	public sealed partial class MainPage : Page
 	{
+		private List<NamedColor> item_list = new List<NamedColor>();
 		private ObservableCollection<NamedColor> recordings = new ObservableCollection<NamedColor>();
 		private string data_name = "Main";
 
@@ -51,8 +55,6 @@ namespace FolderTagExplorer
 
 		private async void init()
 		{
-			this.ImageGridView.DataContext = this.recordings;
-
 			ApplicationView.GetForCurrentView().Title = data_name;
 
 			// SQLiteのDBに初期データを流し込む。
@@ -263,12 +265,16 @@ namespace FolderTagExplorer
 			if (!is_init)
 			{
 				id = DataAccess.AddData(this.data_name, path);
-				this.recordings.Insert(0, new NamedColor(id, path, IsFile, name, null, is_exist, bitmapImage));
+				NamedColor new_item_data = new NamedColor(id, path, IsFile, name, null, is_exist, bitmapImage);
+				this.item_list.Insert(0, new_item_data);
+				this.recordings.Insert(0, new_item_data);
 			}
 			else
 			{
 				Dictionary<string, object> item_data = DataAccess.GetItem(this.data_name, id);
-				this.recordings.Add(new NamedColor(id, path, IsFile, name, (Dictionary<string, string>)item_data["tag_id_list"], is_exist, bitmapImage));
+				NamedColor new_item_data = new NamedColor(id, path, IsFile, name, (Dictionary<string, string>)item_data["tag_id_list"], is_exist, bitmapImage);
+				this.item_list.Add(new_item_data);
+				this.recordings.Add(new_item_data);
 			}
 
 			return is_exist;
@@ -325,13 +331,19 @@ namespace FolderTagExplorer
 				if (result == ContentDialogResult.Primary)
 				{
 					Dictionary<string, object> item_data = DataAccess.GetItem(this.data_name, select_item.Id);
+					int item_index = this.item_list.IndexOf(select_item);
+
+					this.item_list[item_index].TagIdList = (Dictionary<string, string>)item_data["tag_id_list"];
+					this.item_list[item_index].refresh();
+
 					select_item.TagIdList = (Dictionary<string, string>)item_data["tag_id_list"];
 					select_item.refresh();
 
 					// INotifyPropertyChangedを使うとイイらしいがうまく行かないので、要素を削除&再挿入して再表示させている。
-					int index = this.ImageGridView.IndexFromContainer(this.ImageGridView.ContainerFromItem(select_item));
+					// int index = this.ImageGridView.IndexFromContainer(this.ImageGridView.ContainerFromItem(select_item));
+					int view_item_index = this.recordings.IndexOf(select_item);
 					this.recordings.Remove(select_item);
-					this.recordings.Insert(index, select_item);
+					this.recordings.Insert(view_item_index, select_item);
 				}
 			}
 			else if (type == "delete")
@@ -348,11 +360,32 @@ namespace FolderTagExplorer
 				if (result == ContentDialogResult.Primary)
 				{
 					DataAccess.DeleteItemData(this.data_name, select_item.Id);
+					this.item_list.Remove(select_item);
 					this.recordings.Remove(select_item);
 				}
 			}
 		}
 
+		private void SearchButton_Click(object sender, RoutedEventArgs e)
+		{
+			List<NamedColor> filter_list;
+			filter_list = this.item_list.Where(data => data.DisplayName.Contains(this.SearchWord.Text, StringComparison.InvariantCultureIgnoreCase)).ToList();
+			
+			this.recordings.Clear();
+			foreach (var item in filter_list)
+			{
+				this.recordings.Add(item);
+			}
+
+		}
+
+		private void SearchWord_KeyDown(object sender, KeyRoutedEventArgs e)
+		{
+			if (e.Key == VirtualKey.Enter)
+			{
+				SearchButton_Click(new object(), new RoutedEventArgs());
+			}
+		}
 	}
 
 	class NamedColor
