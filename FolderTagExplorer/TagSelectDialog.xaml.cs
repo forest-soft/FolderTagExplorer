@@ -85,6 +85,7 @@ namespace FolderTagExplorer
 
 		private void ContentDialog_SecondaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
 		{
+
 		}
 
 		private void TagListView_Loaded(object sender, RoutedEventArgs e)

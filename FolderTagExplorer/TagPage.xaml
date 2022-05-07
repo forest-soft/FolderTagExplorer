@@ -27,7 +27,7 @@
 
 		<ListView
             x:Name="TagListViewHeader"
-            SelectionMode="None"
+            SelectionMode="Single"
             VerticalAlignment="Top"
             RelativePanel.AlignLeftWithPanel="True"
             RelativePanel.AlignRightWithPanel="True"
@@ -53,7 +53,7 @@
 		<ListView
             x:Name="TagListView"
             ItemsSource="{x:Bind tag_list}"
-            SelectionMode="None"
+            SelectionMode="Single"
             VerticalAlignment="Top"
             RelativePanel.AlignLeftWithPanel="True"
             RelativePanel.AlignRightWithPanel="True"
@@ -79,16 +79,22 @@
 
 						<TextBlock x:Name="UseCount" Grid.Column="1" Text="{x:Bind UseCount}" HorizontalTextAlignment="Right" HorizontalAlignment="Right" VerticalAlignment="Center" Padding="10"/>
 
-						<Button x:Name="EditButton" Grid.Column="2" Click="EditButton_Click" Width="50" Height="50" Background="White">
+						<Button x:Name="EditButton" Grid.Column="2" Click="EditButton_Click" Width="50" Height="50">
 							<StackPanel>
 								<SymbolIcon Symbol="Edit" />
 							</StackPanel>
+							<Button.Background>
+								<SolidColorBrush Color="white" Opacity="0" />
+							</Button.Background>
 						</Button>
 
-						<Button x:Name="DeleteButton" Grid.Column="3" Click="DeleteButton_Click" Width="50" Height="50" Background="White">
+						<Button x:Name="DeleteButton" Grid.Column="3" Click="DeleteButton_Click" Width="50" Height="50">
 							<StackPanel>
 								<SymbolIcon Symbol="Delete"/>
 							</StackPanel>
+							<Button.Background>
+								<SolidColorBrush Color="white" Opacity="0" />
+							</Button.Background>
 						</Button>
 					</Grid>
 				</DataTemplate>

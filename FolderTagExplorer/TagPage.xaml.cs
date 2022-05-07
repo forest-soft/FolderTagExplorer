@@ -28,6 +28,7 @@ namespace FolderTagExplorer
 		private string data_name = null;
 		private ObservableCollection<TagListRow> tag_list = new ObservableCollection<TagListRow>();
 		private Boolean is_change = false;
+		private TagListRow edit_select_item = null;
 
 		public TagPage()
 		{
@@ -35,10 +36,23 @@ namespace FolderTagExplorer
 
 			this.data_name = ((App)Application.Current).data_name;
 
+			this.LoadTagList();
+		}
+
+		private void LoadTagList(string scroll_tag_id = null)
+		{
 			Dictionary<string, Dictionary<String, String>> list = DataAccess.GetTagList(this.data_name);
+			this.tag_list.Clear();
 			foreach (var v in list)
 			{
-				this.tag_list.Add(new TagListRow(v.Value["id"], v.Value["name"]));
+				TagListRow row = new TagListRow(v.Value["id"], v.Value["name"]);
+				this.tag_list.Add(row);
+
+				if (scroll_tag_id != null && scroll_tag_id == v.Value["id"])
+				{
+					this.TagListView.SelectedIndex = this.tag_list.IndexOf(row);
+					this.TagListView.ScrollIntoView(row, ScrollIntoViewAlignment.Leading);
+				}
 			}
 		}
 
@@ -100,7 +114,9 @@ namespace FolderTagExplorer
 			}
 			else
 			{
-				DataAccess.AddTagData(this.data_name, name);
+				string id = DataAccess.AddTagData(this.data_name, name);
+
+				this.LoadTagList(id);
 
 				// 登録したタグをタグリストに反映させる。
 				((App)Application.Current).SetTagList();
@@ -126,12 +142,72 @@ namespace FolderTagExplorer
 
 		private async void EditButton_Click(object sender, RoutedEventArgs e)
 		{
+			TagListRow select_item = (TagListRow)((FrameworkElement)sender).DataContext;
+			this.TagListView.SelectedIndex = this.tag_list.IndexOf(select_item);
+			this.edit_select_item = select_item;
 
+			TextBox inputTextBox = new TextBox();
+			inputTextBox.AcceptsReturn = false;
+			inputTextBox.Height = 32;
+			inputTextBox.Text = select_item.Name;
+
+			ContentDialog dialog = new ContentDialog();
+
+			dialog.Content = inputTextBox;
+			dialog.Title = "タグ更新";
+			dialog.IsSecondaryButtonEnabled = true;
+			dialog.PrimaryButtonText = "更新";
+			dialog.SecondaryButtonText = "キャンセル";
+			dialog.PrimaryButtonClick += EditDialog_EditButton_Click;
+			dialog.SecondaryButtonClick += EditDialog_CancelButton_Click;
+			await dialog.ShowAsync();
+		}
+
+		private void EditDialog_CancelButton_Click(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+		{
+			this.edit_select_item = null;
+		}
+
+		private async void EditDialog_EditButton_Click(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+		{
+			string id = this.edit_select_item.Id;
+			string name = ((TextBox)sender.Content).Text.Trim();
+
+			string error_message = this.Validate(name, id);
+			if (error_message.Length != 0)
+			{
+				// ダイアログを多重で表示できないので登録ダイアログを一旦閉じる。
+				sender.Hide();
+
+				// エラーメッセージのダイアログを表示する。
+				ContentDialog error_dialog = new ContentDialog
+				{
+					Content = error_message,
+					CloseButtonText = "閉じる"
+				};
+				await error_dialog.ShowAsync();
+
+				// 再度更新ダイアログを表示する。
+				await sender.ShowAsync();
+			}
+			else
+			{
+				DataAccess.EditTagData(this.data_name, id, name);
+
+				this.LoadTagList(id);
+
+				this.edit_select_item = null;
+
+				this.is_change = true;
+
+				sender.Hide();
+			}
 		}
 
 		private async void DeleteButton_Click(object sender, RoutedEventArgs e)
 		{
 			TagListRow select_item = (TagListRow)((FrameworkElement)sender).DataContext;
+			this.TagListView.SelectedIndex = this.tag_list.IndexOf(select_item);
 
 			ContentDialog noWifiDialog = new ContentDialog
 			{

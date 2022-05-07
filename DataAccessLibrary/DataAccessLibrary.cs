@@ -257,6 +257,24 @@ namespace DataAccessLibrary
 			return id;
 		}
 
+		public static void EditTagData(string data_name, string id, string name)
+		{
+			using (SqliteConnection db = GetConnection(data_name))
+			{
+				db.Open();
+
+				SqliteCommand command = new SqliteCommand();
+				command.Connection = db;
+
+				command.CommandText = "UPDATE Tag " +
+										"SET name = @name " +
+										"WHERE id = @id";
+				command.Parameters.AddWithValue("@name", name);
+				command.Parameters.AddWithValue("@id", id);
+				command.ExecuteNonQuery();
+			}
+		}
+
 		public static Dictionary<string, Dictionary<String, String>> GetTagList(string data_name)
 		{
 			Dictionary<string, Dictionary<String, String>> result = new Dictionary<string, Dictionary<String, String>>();
