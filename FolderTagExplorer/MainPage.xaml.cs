@@ -31,6 +31,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using Windows.UI.Xaml.Automation.Peers;
 using Windows.UI.Xaml.Automation.Provider;
+using System.Collections;
 
 // 空白ページの項目テンプレートについては、https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x411 を参照してください
 
@@ -326,7 +327,7 @@ namespace FolderTagExplorer
 
 			if (type == "tag_relation")
 			{
-				TagSelectDialog tag_select_dialog = new TagSelectDialog(this.data_name, select_item.Id);
+				TagSelectDialog tag_select_dialog = new TagSelectDialog(this.data_name, select_item.TagIdList, select_item.Id);
 				ContentDialogResult result = await tag_select_dialog.ShowAsync();
 				if (result == ContentDialogResult.Primary)
 				{
@@ -368,9 +369,35 @@ namespace FolderTagExplorer
 
 		private void SearchButton_Click(object sender, RoutedEventArgs e)
 		{
+			Dictionary<string, string> tag_id_list = new Dictionary<string, string>();
+			if (this.SearchTagId.Text.Length != 0)
+			{
+				foreach (string tag_id in this.SearchTagId.Text.Split(","))
+				{
+					tag_id_list[tag_id] = tag_id;
+				}
+			}
+
+			// tag_id_list.Where(data => data.Value
+
 			List<NamedColor> filter_list;
-			filter_list = this.item_list.Where(data => data.DisplayName.Contains(this.SearchWord.Text, StringComparison.InvariantCultureIgnoreCase)).ToList();
-			
+
+			IEnumerable<NamedColor> linq_data = this.item_list
+							.Where(data => data.DisplayName.Contains(this.SearchWord.Text.Trim(), StringComparison.InvariantCultureIgnoreCase));
+
+			if (tag_id_list.Count != 0)
+			{
+				foreach (string tag_id in tag_id_list.Values)
+				{
+					linq_data = linq_data.Where(data => data.TagIdList.ContainsKey(tag_id));
+				}
+
+				// ORで検索する場合
+				// linq_data = linq_data.Where(data => tag_id_list.Count == 0 || data.TagIdList.Any(tag_data => tag_id_list.ContainsKey(tag_data.Value)));
+			}
+
+			filter_list = linq_data.ToList();
+
 			this.recordings.Clear();
 			foreach (var item in filter_list)
 			{
@@ -384,6 +411,33 @@ namespace FolderTagExplorer
 			if (e.Key == VirtualKey.Enter)
 			{
 				SearchButton_Click(new object(), new RoutedEventArgs());
+			}
+		}
+
+		private async void SearchTagName_GotFocus(object sender, RoutedEventArgs e)
+		{
+			this.Focus(FocusState.Programmatic);
+
+			Dictionary<string, string> tag_id_list = new Dictionary<string, string>();
+
+			foreach (string tag_id in this.SearchTagId.Text.Split(","))
+			{
+				tag_id_list[tag_id] = tag_id;
+			}
+
+			TagSelectDialog tag_select_dialog = new TagSelectDialog(this.data_name, tag_id_list);
+			ContentDialogResult result = await tag_select_dialog.ShowAsync();
+			if (result == ContentDialogResult.Primary)
+			{
+				this.SearchTagId.Text = string.Join(",", tag_select_dialog.select_tag_id_list.Values);
+
+				Dictionary<string, Dictionary<string, string>> tag_list = ((App)Application.Current).tag_list;
+				List<string> tag_name_list = new List<string>();
+				foreach (string tag_id in tag_select_dialog.select_tag_id_list.Values)
+				{
+					tag_name_list.Add(tag_list[tag_id]["name"]);
+				}
+				this.SearchTagName.Text = string.Join(", ", tag_name_list);
 			}
 		}
 	}

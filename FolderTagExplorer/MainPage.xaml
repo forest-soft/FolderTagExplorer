@@ -11,11 +11,14 @@
     DragOver="Page_DragOver"
     Drop="Page_Drop">
 	<RelativePanel>
-        <TextBlock x:Name="TitleTextBlock" Text="Collection" Margin="24,0,0,24" Style="{StaticResource TitleTextBlockStyle}"/>
+        <TextBlock x:Name="TitleTextBlock" Text="Collection" Margin="24,0,0,45" Style="{StaticResource TitleTextBlockStyle}"/>
 		<Button Content="タグ管理" Margin="200,10,0,0" Click="Button_Click"/>
 
 		<TextBox x:Name="SearchWord" Margin="300,10,0,0" Width="200" Text="" PlaceholderText="検索ワード" KeyDown="SearchWord_KeyDown"/>
-		<Button x:Name="SearchButton" Content="検索" Margin="500,10,0,0" Click="SearchButton_Click"/>
+		<TextBox x:Name="SearchTagName" Margin="300,45,0,0" Width="200" Text="" PlaceholderText="検索タグ" GotFocus="SearchTagName_GotFocus"/>
+		<TextBox x:Name="SearchTagId" Margin="300,40,0,0" Width="200" Text="" Visibility="Collapsed"/>
+
+		<Button x:Name="SearchButton" Content="検索" Margin="505,10,0,0" Width="60" Height="67" Click="SearchButton_Click"/>
 
 
 		<GridView

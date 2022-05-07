@@ -7,12 +7,12 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
     Title=""
-    PrimaryButtonText="保存"
+    PrimaryButtonText="選択"
     SecondaryButtonText="キャンセル"
     PrimaryButtonClick="ContentDialog_PrimaryButtonClick"
     SecondaryButtonClick="ContentDialog_SecondaryButtonClick">
 	<RelativePanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Height="700" Width="400">
-		<TextBlock x:Name="TitleTextBlock" Text="タグ紐付け" Style="{StaticResource TitleTextBlockStyle}" VerticalAlignment="Top" HorizontalAlignment="Left" RenderTransformOrigin="0.5,0.5" Padding="0,0,0,30"/>
+		<TextBlock x:Name="TitleTextBlock" Text="タグ選択" Style="{StaticResource TitleTextBlockStyle}" VerticalAlignment="Top" HorizontalAlignment="Left" RenderTransformOrigin="0.5,0.5" Padding="0,0,0,30"/>
 		<ListView
             x:Name="TagListView"
             ItemsSource="{x:Bind tag_list}"
