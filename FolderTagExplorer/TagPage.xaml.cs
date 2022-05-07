@@ -89,6 +89,10 @@ namespace FolderTagExplorer
 			else
 			{
 				DataAccess.AddTagData(this.data_name, name);
+
+				// 登録したタグをタグリストに反映させる。
+				((App)Application.Current).SetTagList();
+
 				sender.Hide();
 			}
 		}

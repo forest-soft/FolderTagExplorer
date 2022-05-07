@@ -58,11 +58,13 @@ namespace FolderTagExplorer
 		{
 			ApplicationView.GetForCurrentView().Title = data_name;
 
+			((App)Application.Current).data_name = this.data_name;
+
 			// SQLiteのDBに初期データを流し込む。
 			DataAccess.InitializeDatabase(this.data_name);
 
 			// タグリスト取得
-			((App)Application.Current).tag_list = DataAccess.GetTagList(this.data_name);
+			((App)Application.Current).SetTagList();
 
 			Boolean is_show_permission_dialog = false;
 			List<Dictionary<String, String>> list = DataAccess.SelectAllData(this.data_name);

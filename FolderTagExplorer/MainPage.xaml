@@ -10,23 +10,44 @@
     AllowDrop="True"
     DragOver="Page_DragOver"
     Drop="Page_Drop">
+
 	<RelativePanel>
-        <TextBlock x:Name="TitleTextBlock" Text="Collection" Margin="24,0,0,45" Style="{StaticResource TitleTextBlockStyle}"/>
-		<Button Content="タグ管理" Margin="200,10,0,0" Click="Button_Click"/>
+		<VisualStateManager.VisualStateGroups>
+			<VisualStateGroup>
+				<VisualState>
+					<VisualState.StateTriggers>
+						<AdaptiveTrigger MinWindowWidth="570" />
+					</VisualState.StateTriggers>
+					<VisualState.Setters>
+						<Setter Target="SearchArea.(RelativePanel.RightOf)" Value="MainArea" />
+						<Setter Target="SearchArea.(RelativePanel.Below)" Value="" />
+						<Setter Target="SearchArea.(RelativePanel.Margin)" Value="30,0,0,0" />
+						<Setter Target="SearchArea.(RelativePanel.AlignHorizontalCenterWithPanel)" Value="False" />
+					</VisualState.Setters>
+				</VisualState>
+			</VisualStateGroup>
+		</VisualStateManager.VisualStateGroups>
 
-		<TextBox x:Name="SearchWord" Margin="300,10,0,0" Width="200" Text="" PlaceholderText="検索ワード" KeyDown="SearchWord_KeyDown"/>
-		<TextBox x:Name="SearchTagName" Margin="300,45,0,0" Width="200" Text="" PlaceholderText="検索タグ" GotFocus="SearchTagName_GotFocus"/>
-		<TextBox x:Name="SearchTagId" Margin="300,40,0,0" Width="200" Text="" Visibility="Collapsed"/>
+		<RelativePanel x:Name="HeaderArea" RelativePanel.AlignTopWithPanel="True" RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True" Margin="10,10,10,10">
+			<RelativePanel x:Name="MainArea" Height="70" Margin="0,0,0,0">
+				<TextBlock x:Name="TitleTextBlock" Text="Collection" Style="{StaticResource TitleTextBlockStyle}" Margin="20,0,0,0"/>
+				<Button x:Name="TagButton" Content="タグ管理" RelativePanel.RightOf="TitleTextBlock" Margin="20,0,0,0" Width="100" Click="Button_Click" VerticalAlignment="Stretch" RelativePanel.AlignTopWithPanel="True" RelativePanel.AlignBottomWithPanel="True" />
+			</RelativePanel>
 
-		<Button x:Name="SearchButton" Content="検索" Margin="505,10,0,0" Width="60" Height="67" Click="SearchButton_Click"/>
-
+			<RelativePanel x:Name="SearchArea" Margin="30,10,0,10" RelativePanel.RightOf="" HorizontalAlignment="Stretch" VerticalAlignment="Top" Canvas.ZIndex="1" RelativePanel.Below="MainArea" RelativePanel.AlignHorizontalCenterWithPanel="True">
+				<TextBox x:Name="SearchWord" Margin="0,0,0,0" Text="" PlaceholderText="検索ワード" KeyDown="SearchWord_KeyDown" HorizontalAlignment="Stretch" VerticalAlignment="Top" RelativePanel.AlignLeftWithPanel="True" Width="200"/>
+			    <TextBox x:Name="SearchTagName" RelativePanel.Below="SearchWord" Margin="0,5,0,0" Text="" PlaceholderText="検索タグ" GotFocus="SearchTagName_GotFocus" VerticalAlignment="Top" HorizontalAlignment="Left" Width="200"/>
+			    <TextBox x:Name="SearchTagId" RelativePanel.Below="SearchTagName" Margin="0,10,0,0" Width="200" Text="" Visibility="Collapsed" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+			    <Button x:Name="SearchButton" Content="検索" Margin="5,0,0,0" Width="60" Height="Auto" Click="SearchButton_Click" VerticalAlignment="Stretch" HorizontalAlignment="Right" RelativePanel.AlignTopWithPanel="True" RelativePanel.AlignBottomWithPanel="True" RelativePanel.RightOf="SearchWord" RelativePanel.AlignRightWithPanel="True"/>
+		    </RelativePanel>
+		</RelativePanel>
 
 		<GridView
             x:Name="ImageGridView"
             Margin="10,0,10,0"
             RelativePanel.AlignLeftWithPanel="True"
             RelativePanel.AlignRightWithPanel="True"
-            RelativePanel.Below="TitleTextBlock"
+            RelativePanel.Below="HeaderArea"
             ItemsSource="{x:Bind recordings}"
             RelativePanel.AlignBottomWithPanel="True"
             IsItemClickEnabled="True"
@@ -60,6 +81,5 @@
 		</GridView>
         
     </RelativePanel>
-
 
 </Page>

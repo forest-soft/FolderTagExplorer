@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DataAccessLibrary;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -22,6 +23,7 @@ namespace FolderTagExplorer
 	/// </summary>
 	sealed partial class App : Application
 	{
+		public string data_name = null;
 		public Dictionary<string, Dictionary<string, string>> tag_list = new Dictionary<string, Dictionary<string, string>>();
 
 		/// <summary>
@@ -97,6 +99,11 @@ namespace FolderTagExplorer
 			var deferral = e.SuspendingOperation.GetDeferral();
 			//TODO: アプリケーションの状態を保存してバックグラウンドの動作があれば停止します
 			deferral.Complete();
+		}
+
+		public void SetTagList()
+		{
+			this.tag_list = DataAccess.GetTagList(this.data_name);
 		}
 	}
 }
