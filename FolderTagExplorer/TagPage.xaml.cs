@@ -45,7 +45,7 @@ namespace FolderTagExplorer
 			this.tag_list.Clear();
 			foreach (var v in list)
 			{
-				TagListRow row = new TagListRow(v.Value["id"], v.Value["name"]);
+				TagListRow row = new TagListRow(v.Value["id"], v.Value["name"], v.Value["use_count"]);
 				this.tag_list.Add(row);
 
 				if (scroll_tag_id != null && scroll_tag_id == v.Value["id"])

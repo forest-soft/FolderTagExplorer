@@ -121,8 +121,11 @@ namespace FolderTagExplorer
 						// INotifyPropertyChangedを使うとイイらしいがうまく行かないので、要素を削除&再挿入して再表示させている。
 						// int index = this.ImageGridView.IndexFromContainer(this.ImageGridView.ContainerFromItem(select_item));
 						int view_item_index = this.recordings.IndexOf(v);
-						this.recordings.Remove(v);
-						this.recordings.Insert(view_item_index, v);
+						if (view_item_index != -1)
+						{
+							this.recordings.Remove(v);
+							this.recordings.Insert(view_item_index, v);
+						}
 					}
 
 					app.is_tag_change = false;
@@ -541,11 +544,11 @@ namespace FolderTagExplorer
 
 	class TagListRow
 	{
-		public TagListRow(string id, string name)
+		public TagListRow(string id, string name, string use_count = null)
 		{
 			this.Id = id;
 			this.Name = name;
-			this.UseCount = "100";
+			this.UseCount = use_count;
 		}
 
 		public string Id { get; set; }

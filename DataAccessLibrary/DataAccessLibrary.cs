@@ -285,7 +285,16 @@ namespace DataAccessLibrary
 
 				SqliteCommand sql_command = new SqliteCommand();
 				sql_command.Connection = db;
-				sql_command.CommandText = "SELECT * FROM Tag ORDER BY name ASC;";
+				sql_command.CommandText = "SELECT " +
+												"Tag.id" +
+												", Tag.name" +
+												", COUNT(R_TAG_FOR_ITEM.item_id) AS use_count " +
+											"FROM " +
+												"Tag " +
+												"LEFT JOIN R_TAG_FOR_ITEM " +
+													"ON (R_TAG_FOR_ITEM.tag_id = Tag.id) " +
+											"GROUP BY Tag.id " +
+											"ORDER BY Tag.name ASC";
 
 				SqliteDataReader query = sql_command.ExecuteReader();
 
@@ -294,6 +303,7 @@ namespace DataAccessLibrary
 					Dictionary<String, String> data = new Dictionary<String, String>();
 					data["id"] = query["id"].ToString();
 					data["name"] = query["name"].ToString();
+					data["use_count"] = query["use_count"].ToString();
 
 					result[data["id"]] = data;
 				}
