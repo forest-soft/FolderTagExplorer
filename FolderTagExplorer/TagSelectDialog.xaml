@@ -23,7 +23,6 @@
             RelativePanel.AlignBottomWithPanel="True"
             RelativePanel.Below="TitleTextBlock"
             Loaded="TagListView_Loaded"
-            
             >
 			<ListView.ItemTemplate>
 				<DataTemplate x:Name="IconTextTemplate" x:DataType="local:TagListRow">

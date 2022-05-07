@@ -1,6 +1,7 @@
 ﻿using DataAccessLibrary;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
@@ -25,10 +26,20 @@ namespace FolderTagExplorer
 	public sealed partial class TagPage : Page
 	{
 		private string data_name = null;
+		private ObservableCollection<TagListRow> tag_list = new ObservableCollection<TagListRow>();
+		private Boolean is_change = false;
 
 		public TagPage()
 		{
 			this.InitializeComponent();
+
+			this.data_name = ((App)Application.Current).data_name;
+
+			Dictionary<string, Dictionary<String, String>> list = DataAccess.GetTagList(this.data_name);
+			foreach (var v in list)
+			{
+				this.tag_list.Add(new TagListRow(v.Value["id"], v.Value["name"]));
+			}
 		}
 
 		protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -37,7 +48,6 @@ namespace FolderTagExplorer
 			{
 				Dictionary<String, String> param = (Dictionary<String, String>)e.Parameter;
 
-				this.data_name = param["data_name"];
 			}
 
 			base.OnNavigatedTo(e);
@@ -45,6 +55,8 @@ namespace FolderTagExplorer
 
 		private void BackButton_Click(object sender, RoutedEventArgs e)
 		{
+			((App)Application.Current).is_tag_change = this.is_change;
+
 			this.Frame.GoBack();
 		}
 
@@ -110,6 +122,33 @@ namespace FolderTagExplorer
 			}
 
 			return "";
+		}
+
+		private async void EditButton_Click(object sender, RoutedEventArgs e)
+		{
+
+		}
+
+		private async void DeleteButton_Click(object sender, RoutedEventArgs e)
+		{
+			TagListRow select_item = (TagListRow)((FrameworkElement)sender).DataContext;
+
+			ContentDialog noWifiDialog = new ContentDialog
+			{
+				// Title = "",
+				Content = select_item.Name + "を削除しますか？",
+				PrimaryButtonText = "はい",
+				CloseButtonText = "いいえ"
+			};
+
+			ContentDialogResult result = await noWifiDialog.ShowAsync();
+			if (result == ContentDialogResult.Primary)
+			{
+				DataAccess.DeleteTagData(this.data_name, select_item.Id);
+				this.tag_list.Remove(select_item);
+
+				this.is_change = true;
+			}
 		}
 	}
 }

@@ -377,6 +377,28 @@ namespace DataAccessLibrary
 			return id;
 		}
 
+		public static void DeleteTagData(string data_name, string id)
+		{
+			using (SqliteConnection db = GetConnection(data_name))
+			{
+				db.Open();
+
+				SqliteCommand sql_command = new SqliteCommand();
+				sql_command.Connection = db;
+
+				sql_command.CommandText = "DELETE FROM R_TAG_FOR_ITEM WHERE tag_id = @tag_id;";
+				sql_command.Parameters.AddWithValue("@tag_id", id);
+				sql_command.ExecuteNonQuery();
+				sql_command.Parameters.Clear();
+
+				sql_command.CommandText = "DELETE FROM Tag WHERE id = @id;";
+				sql_command.Parameters.AddWithValue("@id", id);
+				sql_command.ExecuteNonQuery();
+				sql_command.Parameters.Clear();
+
+			}
+		}
+
 
 	}
 }

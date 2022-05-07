@@ -25,6 +25,7 @@ namespace FolderTagExplorer
 	{
 		public string data_name = null;
 		public Dictionary<string, Dictionary<string, string>> tag_list = new Dictionary<string, Dictionary<string, string>>();
+		public Boolean is_tag_change = false;
 
 		/// <summary>
 		///単一アプリケーション オブジェクトを初期化します。これは、実行される作成したコードの

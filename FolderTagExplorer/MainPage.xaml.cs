@@ -100,6 +100,36 @@ namespace FolderTagExplorer
 			}
 		}
 
+		protected override void OnNavigatedTo(NavigationEventArgs e)
+		{
+			base.OnNavigatedTo(e);
+
+			if (e.NavigationMode == NavigationMode.Back)
+			{
+				App app = ((App)Application.Current);
+				if (app.is_tag_change)
+				{
+					app.SetTagList();
+
+					foreach (NamedColor v in this.item_list)
+					{
+						Dictionary<string, object> item_data = DataAccess.GetItem(this.data_name, v.Id);
+						int item_index = this.item_list.IndexOf(v);
+						this.item_list[item_index].TagIdList = (Dictionary<string, string>)item_data["tag_id_list"];
+						this.item_list[item_index].refresh();
+
+						// INotifyPropertyChangedを使うとイイらしいがうまく行かないので、要素を削除&再挿入して再表示させている。
+						// int index = this.ImageGridView.IndexFromContainer(this.ImageGridView.ContainerFromItem(select_item));
+						int view_item_index = this.recordings.IndexOf(v);
+						this.recordings.Remove(v);
+						this.recordings.Insert(view_item_index, v);
+					}
+
+					app.is_tag_change = false;
+				}
+			}
+		}
+
 		private void Page_DragOver(object sender, DragEventArgs e)
 		{
 			e.AcceptedOperation = DataPackageOperation.Link;
@@ -140,7 +170,7 @@ namespace FolderTagExplorer
 			// 要素追加時に追加した要素の位置までスクロールさせたい。
 		}
 
-		private async void Button_Click(object sender, RoutedEventArgs e)
+		private void Button_Click(object sender, RoutedEventArgs e)
 		{
 			Dictionary<String, String> param = new Dictionary<String, String>();
 			param["data_name"] = this.data_name;
@@ -507,5 +537,21 @@ namespace FolderTagExplorer
 			this.DisplayTagName = string.Join(", ", tag_name_list);
 		}
 
+	}
+
+	class TagListRow
+	{
+		public TagListRow(string id, string name)
+		{
+			this.Id = id;
+			this.Name = name;
+			this.UseCount = "100";
+		}
+
+		public string Id { get; set; }
+		public string Name { get; set; }
+		public string UseCount { get; set; }
+
+		
 	}
 }

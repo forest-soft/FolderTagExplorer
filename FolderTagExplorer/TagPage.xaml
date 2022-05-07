@@ -9,18 +9,91 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
 	<RelativePanel>
-		<TextBlock x:Name="TitleTextBlock" Text="タグ管理" Margin="0,30,0,24" Style="{StaticResource TitleTextBlockStyle}" RelativePanel.AlignHorizontalCenterWithPanel="True" RelativePanel.AlignTopWithPanel="True"/>
+		<RelativePanel x:Name="HeaderArea" RelativePanel.AlignTopWithPanel="True" RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True" Margin="10,10,10,10">
+			<TextBlock x:Name="TitleTextBlock" Text="タグ管理" Margin="0,20,0,14" Style="{StaticResource TitleTextBlockStyle}" RelativePanel.AlignHorizontalCenterWithPanel="True" RelativePanel.AlignTopWithPanel="True"/>
 
-		<Button x:Name="BackButton" Margin="30,30,0,0" Click="BackButton_Click" Width="50" Height="49" RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignTopWithPanel="True">
-			<StackPanel>
-				<SymbolIcon Symbol="Back" />
-			</StackPanel>
-		</Button>
+			<Button x:Name="BackButton" Margin="20,20,0,0" Click="BackButton_Click" Width="50" Height="49" RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignTopWithPanel="True">
+				<StackPanel>
+					<SymbolIcon Symbol="Back" />
+				</StackPanel>
+			</Button>
 
-		<Button x:Name="AddButton" Click="AddButton_Click" HorizontalAlignment="Right" RelativePanel.AlignRightWithPanel="True" VerticalAlignment="Top" RelativePanel.AlignTopWithPanel="True" Margin="0,30,30,0" Width="50" Height="50">
-			<StackPanel>
-				<SymbolIcon Symbol="Add" />
-			</StackPanel>
-		</Button>
+			<Button x:Name="AddButton" Click="AddButton_Click" HorizontalAlignment="Right" RelativePanel.AlignRightWithPanel="True" VerticalAlignment="Top" RelativePanel.AlignTopWithPanel="True" Margin="0,20,20,0" Width="50" Height="50">
+				<StackPanel>
+					<SymbolIcon Symbol="Add" />
+				</StackPanel>
+			</Button>
+		</RelativePanel>
+
+		<ListView
+            x:Name="TagListViewHeader"
+            SelectionMode="None"
+            VerticalAlignment="Top"
+            RelativePanel.AlignLeftWithPanel="True"
+            RelativePanel.AlignRightWithPanel="True"
+            RelativePanel.Below="HeaderArea"
+			Margin="30,0,30,0"
+			>
+			<ListView.HeaderTemplate>
+				<DataTemplate>
+					<Grid Height="50" Background="{ThemeResource SystemBaseLowColor}">
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition Width="*"/>
+							<ColumnDefinition Width="100"/>
+							<ColumnDefinition Width="100"/>
+						</Grid.ColumnDefinitions>
+						<TextBlock Grid.Column="0" Text="タグ" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+						<TextBlock Grid.Column="1" Text="使用数" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+						<TextBlock Grid.Column="2" Text="操作" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+					</Grid>
+				</DataTemplate>
+			</ListView.HeaderTemplate>
+		</ListView>
+
+		<ListView
+            x:Name="TagListView"
+            ItemsSource="{x:Bind tag_list}"
+            SelectionMode="None"
+            VerticalAlignment="Top"
+            RelativePanel.AlignLeftWithPanel="True"
+            RelativePanel.AlignRightWithPanel="True"
+            RelativePanel.AlignBottomWithPanel="True"
+            RelativePanel.Below="TagListViewHeader"
+			Margin="30,0,30,0"
+            >
+			<ListView.ItemContainerStyle>
+				<Style TargetType="ListViewItem">
+					<Setter Property="HorizontalContentAlignment" Value="Stretch" />
+				</Style>
+			</ListView.ItemContainerStyle>
+			<ListView.ItemTemplate>
+				<DataTemplate x:Name="IconTextTemplate" x:DataType="local:TagListRow">
+					<Grid Height="50">
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition Width="*"/>
+							<ColumnDefinition Width="80"/>
+							<ColumnDefinition Width="50"/>
+							<ColumnDefinition Width="50"/>
+						</Grid.ColumnDefinitions>
+						<TextBlock x:Name="Name" Grid.Column="0" Margin="10,10,0,0" Text="{x:Bind Name}"/>
+
+						<TextBlock x:Name="UseCount" Grid.Column="1" Text="{x:Bind UseCount}" HorizontalTextAlignment="Right" HorizontalAlignment="Right" VerticalAlignment="Center" Padding="10"/>
+
+						<Button x:Name="EditButton" Grid.Column="2" Click="EditButton_Click" Width="50" Height="50" Background="White">
+							<StackPanel>
+								<SymbolIcon Symbol="Edit" />
+							</StackPanel>
+						</Button>
+
+						<Button x:Name="DeleteButton" Grid.Column="3" Click="DeleteButton_Click" Width="50" Height="50" Background="White">
+							<StackPanel>
+								<SymbolIcon Symbol="Delete"/>
+							</StackPanel>
+						</Button>
+					</Grid>
+				</DataTemplate>
+			</ListView.ItemTemplate>
+		</ListView>
+
 	</RelativePanel>
 </Page>
