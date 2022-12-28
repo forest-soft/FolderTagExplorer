@@ -37,11 +37,11 @@ namespace DataAccessLibrary
 				String sql = "";
 
 				// Itemテーブル
-				sql = "SELECT count(*) FROM sqlite_master WHERE type = 'table' AND name = 'Item'";
+				sql = "SELECT count(*) FROM sqlite_master WHERE type = 'table' AND name = 'ITEM'";
 				command.CommandText = sql;
 				if (command.ExecuteScalar().ToString() == "0")
 				{
-					sql = "CREATE TABLE Item(" +
+					sql = "CREATE TABLE ITEM(" +
 								"id INTEGER NOT NULL PRIMARY KEY" +
 								", path NVARCHAR(2048) NOT NULL" +
 							")";
@@ -51,11 +51,11 @@ namespace DataAccessLibrary
 
 
 				// Tagテーブル
-				sql = "SELECT count(*) FROM sqlite_master WHERE type = 'table' AND name = 'Tag'";
+				sql = "SELECT count(*) FROM sqlite_master WHERE type = 'table' AND name = 'TAG'";
 				command.CommandText = sql;
 				if (command.ExecuteScalar().ToString() == "0")
 				{
-					sql = "CREATE TABLE Tag(" +
+					sql = "CREATE TABLE TAG(" +
 								"id INTEGER NOT NULL PRIMARY KEY" +
 								", name NVARCHAR(2048) NOT NULL" +
 							")";
@@ -92,7 +92,7 @@ namespace DataAccessLibrary
 				SqliteCommand sql_command = new SqliteCommand();
 				sql_command.Connection = db;
 
-				sql_command.CommandText = "SELECT * FROM Item WHERE id = @id";
+				sql_command.CommandText = "SELECT * FROM ITEM WHERE id = @id";
 				sql_command.Parameters.AddWithValue("@id", id);
 
 				SqliteDataReader query = sql_command.ExecuteReader();
@@ -138,7 +138,7 @@ namespace DataAccessLibrary
 				SqliteCommand sql_command = new SqliteCommand();
 				sql_command.Connection = db;
 
-				sql_command.CommandText = "SELECT * FROM Item WHERE path = @path;";
+				sql_command.CommandText = "SELECT * FROM ITEM WHERE path = @path;";
 				sql_command.Parameters.AddWithValue("@path", path);
 
 				SqliteDataReader query = sql_command.ExecuteReader();
@@ -167,7 +167,7 @@ namespace DataAccessLibrary
 				SqliteCommand sql_command = new SqliteCommand();
 				sql_command.Connection = db;
 
-				sql_command.CommandText = "SELECT * FROM Item ORDER BY id DESC;";
+				sql_command.CommandText = "SELECT * FROM ITEM ORDER BY id DESC;";
 
 				SqliteDataReader query = sql_command.ExecuteReader();
 
@@ -197,7 +197,7 @@ namespace DataAccessLibrary
 				insertCommand.Connection = db;
 
 				// Use parameterized query to prevent SQL injection attacks
-				insertCommand.CommandText = "INSERT INTO Item (id, path) VALUES (NULL, @Entry);";
+				insertCommand.CommandText = "INSERT INTO ITEM (id, path) VALUES (NULL, @Entry);";
 				insertCommand.Parameters.AddWithValue("@Entry", inputText);
 
 				insertCommand.ExecuteReader();
@@ -227,7 +227,7 @@ namespace DataAccessLibrary
 				sql_command.ExecuteNonQuery();
 				sql_command.Parameters.Clear();
 
-				sql_command.CommandText = "DELETE FROM Item WHERE id = @id;";
+				sql_command.CommandText = "DELETE FROM ITEM WHERE id = @id;";
 				sql_command.Parameters.AddWithValue("@id", id);
 				sql_command.ExecuteNonQuery();
 				sql_command.Parameters.Clear();
@@ -246,7 +246,7 @@ namespace DataAccessLibrary
 				SqliteCommand command = new SqliteCommand();
 				command.Connection = db;
 
-				command.CommandText = "INSERT INTO Tag (id, name) VALUES (NULL, @name);";
+				command.CommandText = "INSERT INTO TAG (id, name) VALUES (NULL, @name);";
 				command.Parameters.AddWithValue("@name", name);
 				command.ExecuteNonQuery();
 
@@ -266,7 +266,7 @@ namespace DataAccessLibrary
 				SqliteCommand command = new SqliteCommand();
 				command.Connection = db;
 
-				command.CommandText = "UPDATE Tag " +
+				command.CommandText = "UPDATE TAG " +
 										"SET name = @name " +
 										"WHERE id = @id";
 				command.Parameters.AddWithValue("@name", name);
@@ -286,15 +286,15 @@ namespace DataAccessLibrary
 				SqliteCommand sql_command = new SqliteCommand();
 				sql_command.Connection = db;
 				sql_command.CommandText = "SELECT " +
-												"Tag.id" +
-												", Tag.name" +
+												"TAG.id" +
+												", TAG.name" +
 												", COUNT(R_TAG_FOR_ITEM.item_id) AS use_count " +
 											"FROM " +
-												"Tag " +
+												"TAG " +
 												"LEFT JOIN R_TAG_FOR_ITEM " +
-													"ON (R_TAG_FOR_ITEM.tag_id = Tag.id) " +
-											"GROUP BY Tag.id " +
-											"ORDER BY Tag.name ASC";
+													"ON (R_TAG_FOR_ITEM.tag_id = TAG.id) " +
+											"GROUP BY TAG.id " +
+											"ORDER BY TAG.name ASC";
 
 				SqliteDataReader query = sql_command.ExecuteReader();
 
@@ -323,7 +323,7 @@ namespace DataAccessLibrary
 				SqliteCommand sql_command = new SqliteCommand();
 				sql_command.Connection = db;
 
-				sql_command.CommandText = "SELECT * FROM Tag WHERE id = @id ";
+				sql_command.CommandText = "SELECT * FROM TAG WHERE id = @id ";
 				sql_command.Parameters.AddWithValue("@id", id);
 
 				SqliteDataReader query = sql_command.ExecuteReader();
@@ -353,7 +353,7 @@ namespace DataAccessLibrary
 				SqliteCommand sql_command = new SqliteCommand();
 				sql_command.Connection = db;
 
-				sql_command.CommandText = "SELECT * FROM Tag WHERE name = @name ";
+				sql_command.CommandText = "SELECT * FROM TAG WHERE name = @name ";
 				sql_command.Parameters.AddWithValue("@name", name);
 
 				if (ignore_id != null)
@@ -419,7 +419,7 @@ namespace DataAccessLibrary
 				sql_command.ExecuteNonQuery();
 				sql_command.Parameters.Clear();
 
-				sql_command.CommandText = "DELETE FROM Tag WHERE id = @id;";
+				sql_command.CommandText = "DELETE FROM TAG WHERE id = @id;";
 				sql_command.Parameters.AddWithValue("@id", id);
 				sql_command.ExecuteNonQuery();
 				sql_command.Parameters.Clear();

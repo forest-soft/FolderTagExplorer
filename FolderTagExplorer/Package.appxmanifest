@@ -11,7 +11,7 @@
   <Identity
     Name="83dde9ad-da1e-4f0d-bbc6-90fefab5882d"
     Publisher="CN=ForestSoft"
-    Version="1.0.0.0" />
+    Version="1.0.1.0" />
 
   <mp:PhoneIdentity PhoneProductId="83dde9ad-da1e-4f0d-bbc6-90fefab5882d" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
